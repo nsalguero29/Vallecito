@@ -23,81 +23,81 @@ var Venta = require('./modelos/Venta')(sequelize);
 
 //MUCHOS PROD <-> MUCHAS MARCA
 Producto.belongsToMany(Marca, {
-  through: 'productoMarca', foreignKey: 'producto_id', sourceKey: 'id' 
+  through: 'productoMarca', foreignKey: 'productoId', sourceKey: 'id' 
 });
 Marca.belongsToMany(Producto, {
- through: 'productoMarca', foreignKey: 'marca_id', sourceKey: 'id' 
+ through: 'productoMarca', foreignKey: 'marcaId', sourceKey: 'id' 
 });
 
 //MUCHOS PROD <-> MUCHOS ARREGLO
 Producto.belongsToMany(Arreglo, {
-   through: 'productoArreglo', foreignKey: 'producto_id', sourceKey: 'id' 
+   through: 'productoArreglo', foreignKey: 'productoId', sourceKey: 'id' 
 });
 Arreglo.belongsToMany(Producto, {
-  through: 'productoArreglo', foreignKey: 'arreglo_id', sourceKey: 'id' 
+  through: 'productoArreglo', foreignKey: 'arregloId', sourceKey: 'id' 
 });
 
 //MUCHOS PROD <-> MUCHOS PROOVEDOR
 Producto.belongsToMany(Proveedor, {
-  through: 'productoProveedor', foreignKey: 'proveedor_id', sourceKey: 'id' 
+  through: 'productoProveedor', foreignKey: 'proveedorId', sourceKey: 'id' 
 });
 Proveedor.belongsToMany(Producto, {
- through: 'productoProveedor', foreignKey: 'producto_id', sourceKey: 'id' 
+ through: 'productoProveedor', foreignKey: 'productoId', sourceKey: 'id' 
 });
 
 //1 COMPRA -> MUCHOS DETALLES
 Compra.hasMany(DetalleCompra, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'compra_id', sourceKey: 'id' 
+  foreignKey: 'compraId', sourceKey: 'id' 
 });
 
 //MUCHOS PROD <-> MUCHOS DETALLES
 Producto.belongsToMany(DetalleCompra, {
-  through: 'detalleCompra', foreignKey: 'producto_id', sourceKey: 'id' 
+  through: 'detalleCompra', foreignKey: 'productoId', sourceKey: 'id' 
  });
 DetalleCompra.belongsToMany(Producto, {
- through: 'detalleCompra', foreignKey: 'compra_id', sourceKey: 'id' 
+ through: 'detalleCompra', foreignKey: 'compraId', sourceKey: 'id' 
 });
 
 //MUCHAS COMPRAS <-> MUCHOS PROOV
 Compra.belongsToMany(Proveedor, {
-  through: 'detalleCompra', foreignKey: 'proveedor_id', sourceKey: 'id' 
+  through: 'detalleCompra', foreignKey: 'proveedorId', sourceKey: 'id' 
 });
 Proveedor.belongsToMany(Compra, {
- through: 'detalleCompra', foreignKey: 'compra_id', sourceKey: 'id' 
+ through: 'detalleCompra', foreignKey: 'compraId', sourceKey: 'id' 
 });
 
 //1 BICI -> MUCHOS ARREGLOS
 Bicicleta.hasMany(Arreglo, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'bicileta_id', sourceKey: 'id',
-  as: "bicicleta"
+  foreignKey: 'biciletaId', sourceKey: 'id'
 });
 
 //1 CLIENTE -> MUCHAS BICI
 Cliente.hasMany(Bicicleta,{
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'cliente_id', sourceKey: 'id',  
+  foreignKey: 'clienteId', sourceKey: 'id',  
 });
+Bicicleta.belongsTo(Cliente);
 
 //1 CLIENTE -> MUCHAS VENTAS
 Cliente.hasMany(Venta, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'cliente_id', sourceKey: 'id',
+  foreignKey: 'clienteId', sourceKey: 'id',
 });
 
 //1 VENTA -> MUCHOS ARREGLOS
 Venta.hasMany(Arreglo, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'venta_id', sourceKey: 'id', 
+  foreignKey: 'ventaId', sourceKey: 'id', 
 });
 
 //MUCHAS VENTAS <-> MUCHOS PRODUCTOS
 Venta.belongsToMany(Producto, {
-  through: 'productoVenta', foreignKey: 'producto_id', sourceKey: 'id' 
+  through: 'productoVenta', foreignKey: 'productoId', sourceKey: 'id' 
 });
 Producto.belongsToMany(Venta, {
- through: 'productoVenta', foreignKey: 'venta_id', sourceKey: 'id' 
+ through: 'productoVenta', foreignKey: 'ventaId', sourceKey: 'id' 
 });
 
 

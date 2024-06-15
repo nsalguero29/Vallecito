@@ -1,27 +1,18 @@
 var express = require('express');
 var router = express.Router();
+const { Op } = require("sequelize");
+var { Cliente, Bicicleta } = require('../../db/main');
 
-var { Cliente } = require('../db/main');
-
-const attributes = [
-  'documento',
-  'apellido',
-  'nombre',
-  'fechaNac',
-  'direccion',
-  'telefono',
-  'email',
-  'instagram'
-];
+var { attributesCliente, attributesBicicleta } = require('../attributes.json');
 
 /* POST NUEVO CLIENTE */
 router.post('/nuevo', function(req, res, next) {
-  const attributes = req.body;
-  Cliente.create(attributes)
+  const attributesCliente = req.body;
+  Cliente.create(attributesCliente)
   .then((cliente)=>{
     res.json({
       status:'ok',
-      cliente: cliente
+      cliente
     });
   })
   .catch((error) => {
@@ -33,12 +24,16 @@ router.post('/nuevo', function(req, res, next) {
 /* GET LISTADO CLIENTES */
 router.get("/listar", function(req, res, next){
   Cliente.findAll({
-    attributes
+    attributesCliente,
+    include:[{
+      model: Bicicleta,
+      attributes: attributesBicicleta
+    }]
   })
   .then((clientes)=>{
     res.json({
       status:'ok',
-      clientes: clientes
+      clientes
     });
   })
   .catch((error) => {
@@ -50,15 +45,15 @@ router.get("/listar", function(req, res, next){
 /* ACTUALIZAR UN CLIENTE */
 router.put('/actualiza', function(req, res, next) {
   const {id} = req.query;
-  const attributes = req.body;
+  const attributesCliente = req.body;
   Cliente.update(
-    attributes,
+    attributesCliente,
     { where: {id} }
   )
   .then((cliente)=>{
     res.json({
       status:'ok',
-      cliente: cliente
+      cliente
     });
   })
   .catch((error) => {
@@ -67,12 +62,40 @@ router.put('/actualiza', function(req, res, next) {
   })
 });
 
+/* ELIMINA UNA CLIENTE */
 router.delete('/elimina', function(req, res, next) {
   const {id} = req.query;
   Cliente.destroy({ where: {id} })
   .then(()=>{
     res.json({
       status:'ok'
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+    res.json({status:'error', error})
+  })
+});
+
+/* BUSCAR UN POR DOCUMENTO */
+router.get('/filtrar', function(req, res, next){
+  const {documento} = req.query;
+  Cliente.findAll({
+    attributesCliente,
+    include:[{
+      model: Bicicleta,
+      attributes: attributesBicicleta
+    }],
+    where:{ 
+      documento: { 
+        [Op.like]: documento + '%'
+      }
+    }
+  })
+  .then((clientes)=>{
+    res.json({
+      status:'ok',
+      clientes
     });
   })
   .catch((error) => {

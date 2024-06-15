@@ -13,8 +13,6 @@ iniciarDB() // 'force' tira todo y crea nuevo / 'alter' modifica lo que haya / v
 .catch((error) => console.error('DB error:', error))
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var clientesRouter = require('./routes/clientes');
 
 var app = express();
 
@@ -26,7 +24,5 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/clientes', clientesRouter);
 
 module.exports = app;

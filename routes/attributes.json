@@ -1,0 +1,17 @@
+{
+    "attributesCliente": [
+        "documento",
+        "apellido",
+        "nombre",
+        "fechaNac",
+        "direccion",
+        "telefono",
+        "email",
+        "instagram"
+    ],
+    "attributesBicicleta" : [
+        "modelo",
+        "rodado",
+        "observacion"
+    ]
+}
