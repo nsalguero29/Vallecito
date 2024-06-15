@@ -8,12 +8,13 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const { iniciarDB } = require('./db/main');
 
-iniciarDB('force') // 'force' tira todo y crea nuevo / 'alter' modifica lo que haya / vacio toma lo que haya o si no lo crea
+iniciarDB() // 'force' tira todo y crea nuevo / 'alter' modifica lo que haya / vacio toma lo que haya o si no lo crea
 .then(() => console.log("DB inicializada"))
 .catch((error) => console.error('DB error:', error))
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var clientesRouter = require('./routes/clientes');
 
 var app = express();
 
@@ -26,5 +27,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/clientes', clientesRouter);
 
 module.exports = app;
