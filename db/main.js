@@ -73,12 +73,21 @@ Proveedor.belongsToMany(Compra, {
 });
 
 //MUCHAS BICI -> MUCHOS ARREGLOS
-Bicicleta.belongsToMany(Arreglo, {
+/*Bicicleta.belongsToMany(Arreglo, {
   through: BicicletaArreglo, foreignKey: 'bicicletaId', sourceKey: 'id'
 });
 
 Arreglo.belongsToMany(Bicicleta, {
   through: BicicletaArreglo, foreignKey: 'arregloId', sourceKey: 'id'
+});*/
+
+Arreglo.belongsTo(Bicicleta,{
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'bicicletaId', sourceKey: 'id',  
+});
+Bicicleta.hasMany(Arreglo,{
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  sourceKey: 'id',
 });
 
 //1 CLIENTE -> MUCHAS BICI

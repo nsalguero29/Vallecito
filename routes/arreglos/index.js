@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
-var {Arreglo, Bicicleta, BicicletaArreglo, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, Arreglo} = require('../../db/main');
+const { Op, where } = require("sequelize");
+var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, Arreglo} = require('../../db/main');
 
 var { attributesArreglo, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
 
@@ -18,19 +18,22 @@ router.post('/nuevo', function(req, res, next) {
       if(repuestos.length !== 0){
 
       }else{        
-        Arreglo.create(attributesArreglo)
+        Arreglo.create({
+          ...attributesArreglo,
+          bicicletaId
+        })
         .then(async(arreglo)=>{
-          BicicletaArreglo.create({arregloId: arreglo.id, bicicletaId})
-          .then(()=>{
+          //BicicletaArreglo.create({arregloId: arreglo.id, bicicletaId})
+          //.then(()=>{
             res.json({
               status:'ok',
               arreglo
             });                  
-          })
+          /*})
           .catch((error) => {
             console.log(error);
             res.json({status:'error', error})
-          }); 
+          }); */
         })
         .catch((error) => {
           console.log(error);
@@ -53,7 +56,9 @@ router.get("/listar", function(req, res, next){
     attributes: attributesArreglo,
     include:[{
         model: Bicicleta,
-        through: { attributesBicicleta },
+        include: { 
+          model: Cliente 
+        }
     }]
   })
   .then((arreglos)=>{
@@ -68,45 +73,26 @@ router.get("/listar", function(req, res, next){
   })
 });
 
-/* ELIMINA UN PRODUCTO */
-router.delete('/elimina', function(req, res, next) {
-  const {id} = req.query;
-  Producto.destroy({ where: {id} })
-  .then(()=>{
-    res.json({
-      status:'ok'
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })
-});
-
-/* BUSCAR PRODUCTOS POR NOMBRE(PRODUCTO) */
+/* BUSCAR PRODUCTOS POR ID DE BICICLETA */
 router.get('/filtrar', function(req, res, next){
-  const {producto} = req.query;
-  Producto.findAll({
-    attributes: attributesProducto,
-    include:[{
-        model: Marca,
-        through: { attributesMarca },
-    },
-    {
-      model: Proveedor,
-      through: { attributesProveedor },
-      as: 'proveedores' 
-    }],
-    where:{ 
-      producto: { 
-        [Op.like]: '%' + producto + '%'
+  const {bicicletaId} = req.query;
+  Arreglo.findAll({
+    include: { 
+      model: Bicicleta,
+      include: { 
+        model: Cliente 
       }
+    },
+    where:{ 
+      bicicletaId,
+      //estado: 'creado'
     }
   })
-  .then((productos)=>{
+  .then((bicicletaArreglos)=>{
+    console.log(bicicletaArreglos);
     res.json({
       status:'ok',
-      productos
+      bicicletaArreglos
     });
   })
   .catch((error) => {
