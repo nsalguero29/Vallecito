@@ -10,11 +10,14 @@ const sequelize = new Sequelize(cn, {logging: false});
 //MODELOS
 var Arreglo = require('./modelos/Arreglo')(sequelize);
 var Bicicleta = require('./modelos/Bicicleta')(sequelize);
+var BicicletaArreglo = require('./modelos/BicicletaArreglo')(sequelize);
 var Cliente = require('./modelos/Cliente')(sequelize);
 var Compra = require('./modelos/Compra')(sequelize);
 var DetalleCompra = require('./modelos/DetalleCompra')(sequelize);
 var Marca = require('./modelos/Marca')(sequelize);
 var Producto = require('./modelos/Producto')(sequelize);
+var ProductoMarca = require('./modelos/ProductoMarca')(sequelize);
+var ProductoProveedor = require('./modelos/ProductoProveedor')(sequelize);
 var Proveedor = require('./modelos/Proveedor')(sequelize);
 var Usuario = require('./modelos/Usuario')(sequelize);
 var Venta = require('./modelos/Venta')(sequelize);
@@ -23,13 +26,13 @@ var Venta = require('./modelos/Venta')(sequelize);
 
 //MUCHOS PROD <-> MUCHAS MARCA
 Producto.belongsToMany(Marca, {
-  through: 'productoMarca', foreignKey: 'productoId', sourceKey: 'id' 
+  through: ProductoMarca, foreignKey: 'productoId', sourceKey: 'id' 
 });
 Marca.belongsToMany(Producto, {
- through: 'productoMarca', foreignKey: 'marcaId', sourceKey: 'id' 
+ through: ProductoMarca, foreignKey: 'marcaId', sourceKey: 'id' 
 });
 
-//MUCHOS PROD <-> MUCHOS ARREGLO
+//MUCHOS PROD <-> MUCHOS ARREGLOS
 Producto.belongsToMany(Arreglo, {
    through: 'productoArreglo', foreignKey: 'productoId', sourceKey: 'id' 
 });
@@ -39,10 +42,12 @@ Arreglo.belongsToMany(Producto, {
 
 //MUCHOS PROD <-> MUCHOS PROOVEDOR
 Producto.belongsToMany(Proveedor, {
-  through: 'productoProveedor', foreignKey: 'proveedorId', sourceKey: 'id' 
+  through: ProductoProveedor, foreignKey: 'productoId', sourceKey: 'id',
+  as: 'proveedores' 
 });
 Proveedor.belongsToMany(Producto, {
- through: 'productoProveedor', foreignKey: 'productoId', sourceKey: 'id' 
+ through: ProductoProveedor, foreignKey: 'proveedorId', sourceKey: 'id',
+ as:'productos'
 });
 
 //1 COMPRA -> MUCHOS DETALLES
@@ -53,24 +58,27 @@ Compra.hasMany(DetalleCompra, {
 
 //MUCHOS PROD <-> MUCHOS DETALLES
 Producto.belongsToMany(DetalleCompra, {
-  through: 'detalleCompra', foreignKey: 'productoId', sourceKey: 'id' 
+  through: DetalleCompra, foreignKey: 'productoId', sourceKey: 'id' 
  });
 DetalleCompra.belongsToMany(Producto, {
- through: 'detalleCompra', foreignKey: 'compraId', sourceKey: 'id' 
+ through: DetalleCompra, foreignKey: 'compraId', sourceKey: 'id' 
 });
 
 //MUCHAS COMPRAS <-> MUCHOS PROOV
 Compra.belongsToMany(Proveedor, {
-  through: 'detalleCompra', foreignKey: 'proveedorId', sourceKey: 'id' 
+  through: DetalleCompra, foreignKey: 'proveedorId', sourceKey: 'id' 
 });
 Proveedor.belongsToMany(Compra, {
- through: 'detalleCompra', foreignKey: 'compraId', sourceKey: 'id' 
+ through: DetalleCompra, foreignKey: 'compraId', sourceKey: 'id' 
 });
 
-//1 BICI -> MUCHOS ARREGLOS
-Bicicleta.hasMany(Arreglo, {
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'biciletaId', sourceKey: 'id'
+//MUCHAS BICI -> MUCHOS ARREGLOS
+Bicicleta.belongsToMany(Arreglo, {
+  through: BicicletaArreglo, foreignKey: 'bicicletaId', sourceKey: 'id'
+});
+
+Arreglo.belongsToMany(Bicicleta, {
+  through: BicicletaArreglo, foreignKey: 'arregloId', sourceKey: 'id'
 });
 
 //1 CLIENTE -> MUCHAS BICI
@@ -120,11 +128,14 @@ module.exports = {
   iniciarDB,
   Arreglo,
   Bicicleta,
+  BicicletaArreglo,
   Cliente,
   Compra,
   DetalleCompra,
   Marca,
   Producto,
+  ProductoMarca,
+  ProductoProveedor,
   Proveedor,
   Usuario,
   Venta

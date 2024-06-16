@@ -1,18 +1,19 @@
 var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
-var { Cliente, Bicicleta } = require('../../db/main');
+var { Marca, Producto, ProductoMarca, Proveedor } = require('../../db/main');
 
-var { attributesCliente, attributesBicicleta } = require('../attributes.json');
+var { attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
 
-/* POST NUEVO CLIENTE */
-router.post('/nuevo', function(req, res, next) {
-  const attributesCliente = req.body;
-  Cliente.create(attributesCliente)
-  .then((cliente)=>{
+/* MARCAS */
+/* POST NUEVA MARCA */
+router.post('/nueva', function(req, res, next) {
+  const attributesMarca = req.body;
+  Marca.create(attributesMarca)
+  .then((marca)=>{
     res.json({
       status:'ok',
-      cliente
+      marca
     });
   })
   .catch((error) => {
@@ -21,19 +22,19 @@ router.post('/nuevo', function(req, res, next) {
   })
 });
 
-/* GET LISTADO CLIENTES */
+/* GET LISTADO MARCAS CON PRODUCTOS ASOCIADOS */
 router.get("/listar", function(req, res, next){
-  Cliente.findAll({
-    attributes: attributesCliente,
+  Marca.findAll({
+    attributes: attributesMarca,
     include:[{
-      model: Bicicleta,
-      attributes: attributesBicicleta
+        model: Producto,
+        through: { attributesProducto },
     }]
   })
-  .then((clientes)=>{
+  .then((marcas)=>{
     res.json({
       status:'ok',
-      clientes
+      marcas
     });
   })
   .catch((error) => {
@@ -42,18 +43,18 @@ router.get("/listar", function(req, res, next){
   })
 });
 
-/* ACTUALIZAR UN CLIENTE */
+/* ACTUALIZAR UNA MARCA */
 router.put('/actualiza', function(req, res, next) {
   const {id} = req.query;
-  const attributesCliente = req.body;
-  Cliente.update(
-    attributesCliente,
+  const attributesMarca = req.body;
+  Marca.update(
+    attributesMarca,
     { where: {id} }
   )
-  .then((cliente)=>{
+  .then((marca)=>{
     res.json({
       status:'ok',
-      cliente
+      marca
     });
   })
   .catch((error) => {
@@ -62,10 +63,10 @@ router.put('/actualiza', function(req, res, next) {
   })
 });
 
-/* ELIMINA UNA CLIENTE */
+/* ELIMINA UNA MARCA */
 router.delete('/elimina', function(req, res, next) {
   const {id} = req.query;
-  Cliente.destroy({ where: {id} })
+  Marca.destroy({ where: {id} })
   .then(()=>{
     res.json({
       status:'ok'
@@ -77,25 +78,25 @@ router.delete('/elimina', function(req, res, next) {
   })
 });
 
-/* BUSCAR UN POR DOCUMENTO */
+/* BUSCAR UNA MARCA POR NOMBRE(MARCA) */
 router.get('/filtrar', function(req, res, next){
-  const {documento} = req.query;
-  Cliente.findAll({
-    attributes: attributesCliente,
+  const {marca} = req.query;
+  Marca.findAll({
+    attributes: attributesMarca,
     include:[{
-      model: Bicicleta,
-      attributes: attributesBicicleta
+      model: Producto,
+      attributes: attributesProducto
     }],
     where:{ 
-      documento: { 
-        [Op.like]: documento + '%'
+      marca: { 
+        [Op.like]: '%' + marca + '%'
       }
     }
   })
-  .then((clientes)=>{
+  .then((marcas)=>{
     res.json({
       status:'ok',
-      clientes
+      marcas
     });
   })
   .catch((error) => {

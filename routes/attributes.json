@@ -1,4 +1,10 @@
 {
+    "attributesArreglo" : [
+        "estado",
+        "trabajo",
+        "valorArreglo",
+        "observacion"
+    ],
     "attributesCliente": [
         "documento",
         "apellido",
@@ -13,5 +19,22 @@
         "modelo",
         "rodado",
         "observacion"
+    ],
+    "attributesMarca" : [
+        "id",
+        "marca"
+    ],    
+    "attributesProducto" : [
+        "producto",
+        "stock",
+        "precioVenta",
+        "observacion"
+    ],    
+    "attributesProveedor" : [
+        "proveedor",
+        "nombreContacto",
+        "direccion",
+        "telefono",
+        "email"
     ]
 }

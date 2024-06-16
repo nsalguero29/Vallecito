@@ -42,7 +42,7 @@ router.post('/nueva', function(req, res, next) {
 /* GET LISTADO BICICLETA */
 router.get("/listar", function(req, res, next){
   Bicicleta.findAll({
-    attributesBicicleta,
+    attributes: attributesBicicleta,
     include:[{
       model: Cliente,
       attributes: attributesCliente
@@ -99,7 +99,7 @@ router.delete('/elimina', function(req, res, next) {
 router.get('/filtrar', function(req, res, next){
   const {clienteId} = req.query;
   Bicicleta.findAll({
-    attributesBicicleta,
+    attributes: attributesBicicleta,
     include:[{
       model: Cliente,
       attributes: attributesCliente

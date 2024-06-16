@@ -1,18 +1,19 @@
 var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
-var { Cliente, Bicicleta } = require('../../db/main');
+var { Marca, Producto, ProductoMarca, Proveedor } = require('../../db/main');
 
-var { attributesCliente, attributesBicicleta } = require('../attributes.json');
+var { attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
 
-/* POST NUEVO CLIENTE */
+/* PROVEEDORES */
+/* POST NUEVO PROVEEDOR */
 router.post('/nuevo', function(req, res, next) {
-  const attributesCliente = req.body;
-  Cliente.create(attributesCliente)
-  .then((cliente)=>{
+  const attributesProveedor = req.body;
+  Proveedor.create(attributesProveedor)
+  .then((proveedor)=>{
     res.json({
       status:'ok',
-      cliente
+      proveedor
     });
   })
   .catch((error) => {
@@ -21,19 +22,24 @@ router.post('/nuevo', function(req, res, next) {
   })
 });
 
-/* GET LISTADO CLIENTES */
+/* GET LISTADO PROVEEDORES CON PRODUCTOS ASOCIADOS */
 router.get("/listar", function(req, res, next){
-  Cliente.findAll({
-    attributes: attributesCliente,
+  Proveedor.findAll({
+    attributes: attributesProveedor,
     include:[{
-      model: Bicicleta,
-      attributes: attributesBicicleta
+        model: Producto,
+        through: { attributesProducto },
+        as:'productos',
+        include: [{
+          model: Marca,
+          through: { attributesMarca },
+        }]
     }]
   })
-  .then((clientes)=>{
+  .then((proveedores)=>{
     res.json({
       status:'ok',
-      clientes
+      proveedores
     });
   })
   .catch((error) => {
@@ -42,18 +48,18 @@ router.get("/listar", function(req, res, next){
   })
 });
 
-/* ACTUALIZAR UN CLIENTE */
+/* ACTUALIZAR UN PROVEEDOR */
 router.put('/actualiza', function(req, res, next) {
   const {id} = req.query;
-  const attributesCliente = req.body;
-  Cliente.update(
-    attributesCliente,
+  const attributesProveedor = req.body;
+  Proveedor.update(
+    attributesProveedor,
     { where: {id} }
   )
-  .then((cliente)=>{
+  .then((proveedor)=>{
     res.json({
       status:'ok',
-      cliente
+      proveedor
     });
   })
   .catch((error) => {
@@ -62,10 +68,10 @@ router.put('/actualiza', function(req, res, next) {
   })
 });
 
-/* ELIMINA UNA CLIENTE */
+/* ELIMINA UN PROVEEDOR */
 router.delete('/elimina', function(req, res, next) {
   const {id} = req.query;
-  Cliente.destroy({ where: {id} })
+  Proveedor.destroy({ where: {id} })
   .then(()=>{
     res.json({
       status:'ok'
@@ -77,25 +83,25 @@ router.delete('/elimina', function(req, res, next) {
   })
 });
 
-/* BUSCAR UN POR DOCUMENTO */
+/* BUSCAR UN PROVEEDORES POR NOMBRE(PROVEEDOR) */
 router.get('/filtrar', function(req, res, next){
-  const {documento} = req.query;
-  Cliente.findAll({
-    attributes: attributesCliente,
+  const {proveedor} = req.query;
+  Proveedor.findAll({
+    attributes: attributesProveedor,
     include:[{
-      model: Bicicleta,
-      attributes: attributesBicicleta
+      model: Producto,
+      attributes: attributesProducto
     }],
     where:{ 
-      documento: { 
-        [Op.like]: documento + '%'
+      proveedor: { 
+        [Op.like]: '%' + proveedor + '%'
       }
     }
   })
-  .then((clientes)=>{
+  .then((proveedores)=>{
     res.json({
       status:'ok',
-      clientes
+      proveedores
     });
   })
   .catch((error) => {
