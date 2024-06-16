@@ -73,9 +73,10 @@ router.get("/listar", function(req, res, next){
   })
 });
 
-/* BUSCAR PRODUCTOS POR ID DE BICICLETA */
-router.get('/filtrar', function(req, res, next){
+/* BUSCAR ARREGLOS POR ID DE BICICLETA Y ESTADO*/
+router.get('/buscarBici', function(req, res, next){
   const {bicicletaId} = req.query;
+  const {estadosFiltrados} = req.body;
   Arreglo.findAll({
     include: { 
       model: Bicicleta,
@@ -85,14 +86,33 @@ router.get('/filtrar', function(req, res, next){
     },
     where:{ 
       bicicletaId,
-      //estado: 'creado'
+      estado: {[Op.or]: [estadosFiltrados]}
     }
   })
-  .then((bicicletaArreglos)=>{
-    console.log(bicicletaArreglos);
+  .then((arreglosBicicleta)=>{
     res.json({
       status:'ok',
-      bicicletaArreglos
+      arreglosBicicleta
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+    res.json({status:'error', error})
+  })
+});
+
+/* ACTUALIZAR UN ARREGLOS */
+router.put('/actualiza', function(req, res, next) {
+  const {id} = req.query;
+  const attributesArreglo = req.body;  
+  Arreglo.update(
+    attributesArreglo,
+    { where: {id} }
+  )
+  .then((arreglo)=>{
+    res.json({
+      status:'ok',
+      arreglo
     });
   })
   .catch((error) => {

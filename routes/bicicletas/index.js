@@ -96,7 +96,7 @@ router.delete('/elimina', function(req, res, next) {
 });
 
 /* BUSCAR BICICLETAS POR CLIENTE */
-router.get('/filtrar', function(req, res, next){
+router.get('/buscarCliente', function(req, res, next){
   const {clienteId} = req.query;
   Bicicleta.findAll({
     attributes: attributesBicicleta,
