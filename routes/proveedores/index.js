@@ -49,7 +49,7 @@ router.get("/listar", function(req, res, next){
 });
 
 /* ACTUALIZAR UN PROVEEDOR */
-router.put('/actualiza', function(req, res, next) {
+router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesProveedor = req.body;
   Proveedor.update(
@@ -69,7 +69,7 @@ router.put('/actualiza', function(req, res, next) {
 });
 
 /* ELIMINA UN PROVEEDOR */
-router.delete('/elimina', function(req, res, next) {
+router.delete('/eliminar', function(req, res, next) {
   const {id} = req.query;
   Proveedor.destroy({ where: {id} })
   .then(()=>{
@@ -84,7 +84,7 @@ router.delete('/elimina', function(req, res, next) {
 });
 
 /* BUSCAR UN PROVEEDORES POR NOMBRE(PROVEEDOR) */
-router.get('/filtrar', function(req, res, next){
+router.get('/buscar', function(req, res, next){
   const {proveedor} = req.query;
   Proveedor.findAll({
     attributes: attributesProveedor,

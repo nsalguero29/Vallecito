@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 var { Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor} = require('../../db/main');
 
 var { attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
@@ -10,80 +10,50 @@ var { attributesMarca, attributesProducto, attributesProveedor } = require('../a
 router.post('/nuevo', function(req, res, next) {
   const attributesProducto = req.body;
   const {marcaId, proveedorId} = req.body;  
-  Proveedor.findOne({
-    where: {id:proveedorId}
+  Producto.create(attributesProducto)
+  .then(async(producto)=>{
+    nuevoProductoProveedor(producto.id, proveedorId)
+    .then(()=>{
+      nuevoProductoMarca(producto.id, marcaId)
+      .then(()=> res.json({ status:'ok', producto }))
+      .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
+    })
+    .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
   })
-  .then(async (proveedor)=>{
-    if(proveedor !== null){
-      if(marcaId !== undefined){
-        Marca.findOne({
-          where: {id:marcaId}
-        })
-        .then(async (marca)=>{
-          if(marca !== null){
-            Producto.create(attributesProducto)
-            .then(async(producto)=>{
-              ProductoProveedor.create({productoId: producto.id, proveedorId: proveedor.id})
-              .then(async()=>{
-                ProductoMarca.create({productoId: producto.id, marcaId: marca.id})
-                .then(async()=>{
-                  res.json({
-                    status:'ok',
-                    producto
-                  });                  
-                })
-                .catch((error) => {
-                  console.log(error);
-                  res.json({status:'error', error})
-                });
-              })
-              .catch((error) => {
-                console.log(error);
-                res.json({status:'error', error})
-              });              
-            })
-            .catch((error) => {
-              console.log(error);
-              res.json({status:'error', error})
-            });
-          }
-          else{
-            res.json({status:'error', message:'Marca no encontrada'})
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          res.json({status:'error', error})
-        });
-      }else{
-        Producto.create(attributesProducto)
-        .then(async(producto)=>{
-          ProductoProveedor.create({productoId: producto.id, proveedorId: proveedor.id})
-          .then(async()=>{
-            res.json({
-              status:'ok',
-              producto
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-            res.json({status:'error', error})
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          res.json({status:'error', error})
-        });
-      }
-    }else{
-      res.json({status:'error', message:'Proveedor no encontrado'})
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  });
+  .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
 })
+
+const nuevoProductoProveedor = function(productoId, proveedorId){
+  return new Promise((resolve, reject) => {
+    Proveedor.findOne({
+      where: {id : proveedorId}
+    })
+    .then((proveedor)=>{
+      ProductoProveedor.create({productoId, proveedorId})
+      .then(()=>{
+        resolve(proveedor);
+      })
+      .catch((error) =>{ console.log(error); reject(error) });
+    })
+    .catch((error) =>{ console.log(error); reject(error) });
+  })
+};
+
+const nuevoProductoMarca = function(productoId, marcaId){
+  return new Promise((resolve, reject) => {
+    Marca.findOne({
+      where: {id : marcaId}
+    })
+    .then((marca)=>{
+      ProductoMarca.create({productoId, marcaId})
+      .then(()=>{
+        resolve(marca);
+      })
+      .catch((error) =>{ console.log(error); reject(error) });
+    })
+    .catch((error) =>{ console.log(error); reject(error) });
+  })
+};
 
 /* GET LISTADO PRODUCTOS */
 router.get("/listar", function(req, res, next){
@@ -113,28 +83,110 @@ router.get("/listar", function(req, res, next){
 });
 
 /* ACTUALIZAR UN PRODUCTO */
-router.put('/actualiza', function(req, res, next) {
+router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesProducto = req.body;
-  const {marcaId, proveedorId} = req.body; //FALTA ACTUALIZAR MARCA O PROVEEDOR DEL X PRODUCTO
+  const {marcas, proveedores} = req.body; //FALTA ACTUALIZAR MARCA O PROVEEDOR DEL X PRODUCTO
   Producto.update(
     attributesProducto,
     { where: {id} }
   )
-  .then((producto)=>{
-    res.json({
-      status:'ok',
-      producto
-    });
+  .then(()=>{
+    actualizarProveedores(id, proveedores)
+    .then(()=>{
+      actualizarMarcas(id, marcas)
+      .then(()=>{
+        Producto.findOne({
+          attributes: attributesProducto,
+          include:[{
+              model: Marca,
+              through: { attributesMarca },
+          },
+          {
+            model: Proveedor,
+            through: { attributesProveedor },
+            as: 'proveedores' 
+          }],
+          where: {id} 
+        })
+        .then((prodcuto) => res.json({status:'ok', prodcuto}))
+        .catch((error) => res.json({status:'error', error}));
+      })
+      .catch((error) => res.json({status:'error', error}));
+    })
+    .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
   })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })
+  .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
 });
 
+const actualizarProveedores = function(id, proveedores){
+  return new Promise((resolve, reject) => {
+    ProductoProveedor.findAll(
+      {where: {productoId: id}}
+    ).then((productoProveedores)=>{
+      proveedores.forEach(element=> {
+        const existe = productoProveedores.find(proov => proov.proveedorId === element);
+        if(!existe){
+          Proveedor.findOne({ where : { id : element }})
+          .then((proveedor)=> ProductoProveedor.create({productoId: id, proveedorId: proveedor.id}))
+          .catch((error) =>{ console.log(error); reject(error) });
+        }else if(existe){
+          ProductoProveedor.update(
+            { activo : true },
+            { where : { [Op.and] : {productoId: id, proveedorId : element} }}
+          );
+        }
+      });
+      productoProveedores.forEach(element=> {
+        const existe = proveedores.find(proov => proov === element.proveedorId);
+        if(!existe){
+          ProductoProveedor.update(
+            { activo : false },
+            { where : { id : element.id }}
+          );
+        }
+      });
+    })
+    .then(()=>resolve())
+    .catch((error) =>{ console.log(error); reject(error) });
+  });
+};
+
+const actualizarMarcas = function(id, marcas) {
+  return new Promise((resolve, reject) => {
+    ProductoMarca.findAll(
+      {where: {productoId: id}}
+    ).then((productoMarcas)=>{
+      marcas.forEach(element=> {
+        const existe = productoMarcas.find(proov => proov.marcaId === element);
+        if(!existe){
+          Marca.findOne({ where : { id : element }})
+          .then((marca)=> ProductoMarca.create({productoId: id, marcaId: marca.id}))
+          .catch((error) =>{ console.log(error); reject(error) });
+        }else if(existe){
+          ProductoMarca.update(
+            { activo : true },
+            { where : { [Op.and] : {productoId: id, marcaId : element} }}
+          );
+        }
+      });
+      productoMarcas.forEach(element=> {
+        const existe = marcas.find(proov => proov === element.marcaId);
+        if(!existe){
+          ProductoMarca.update(
+            { activo : false },
+            { where : { id : element.id }}
+          );
+        }
+      });      
+    })
+    .then(()=>resolve())
+    .catch((error) =>{ console.log(error); reject(error) });
+  });
+};
+
 /* ELIMINA UN PRODUCTO */
-router.delete('/elimina', function(req, res, next) {
+router.delete('/eliminar', function(req, res, next) {
   const {id} = req.query;
   Producto.destroy({ where: {id} })
   .then(()=>{
@@ -149,7 +201,7 @@ router.delete('/elimina', function(req, res, next) {
 });
 
 /* BUSCAR PRODUCTOS POR NOMBRE(PRODUCTO) */
-router.get('/filtrar', function(req, res, next){
+router.get('/buscar', function(req, res, next){
   const {producto} = req.query;
   Producto.findAll({
     attributes: attributesProducto,

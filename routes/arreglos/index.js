@@ -5,6 +5,8 @@ var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, Pro
 
 var { attributesArreglo, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
 
+const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
+
 /* ARREGLOS */
 /* POST NUEVO ARREGLO */
 router.post('/nuevo', function(req, res, next) {
@@ -52,6 +54,7 @@ router.post('/nuevo', function(req, res, next) {
 
 /* GET LISTADO ARREGLOS */
 router.get("/listar", function(req, res, next){
+  const {estadosFiltrados} = req.body;
   Arreglo.findAll({
     attributes: attributesArreglo,
     include:[{
@@ -59,7 +62,10 @@ router.get("/listar", function(req, res, next){
         include: { 
           model: Cliente 
         }
-    }]
+    }],
+    where:{ 
+        estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto}
+    }
   })
   .then((arreglos)=>{
     res.json({
@@ -102,7 +108,7 @@ router.get('/buscarBici', function(req, res, next){
 });
 
 /* ACTUALIZAR UN ARREGLOS */
-router.put('/actualiza', function(req, res, next) {
+router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesArreglo = req.body;  
   Arreglo.update(

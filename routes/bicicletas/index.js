@@ -61,7 +61,7 @@ router.get("/listar", function(req, res, next){
 });
 
 /* ACTUALIZAR UNA BICICLETA */
-router.put('/actualiza', function(req, res, next) {
+router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesBicicleta = req.body;
   Bicicleta.update(
@@ -81,7 +81,7 @@ router.put('/actualiza', function(req, res, next) {
 });
 
 /* ELIMINA UNA BICICLETA */
-router.delete('/elimina', function(req, res, next) {
+router.delete('/eliminar', function(req, res, next) {
   const {id} = req.query;
   Bicicleta.destroy({ where: {id} })
   .then(()=>{

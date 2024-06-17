@@ -43,7 +43,7 @@ router.get("/listar", function(req, res, next){
 });
 
 /* ACTUALIZAR UN CLIENTE */
-router.put('/actualiza', function(req, res, next) {
+router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesCliente = req.body;
   Cliente.update(
@@ -63,7 +63,7 @@ router.put('/actualiza', function(req, res, next) {
 });
 
 /* ELIMINA UNA CLIENTE */
-router.delete('/elimina', function(req, res, next) {
+router.delete('/eliminar', function(req, res, next) {
   const {id} = req.query;
   Cliente.destroy({ where: {id} })
   .then(()=>{
@@ -78,7 +78,7 @@ router.delete('/elimina', function(req, res, next) {
 });
 
 /* BUSCAR UN POR DOCUMENTO */
-router.get('/filtrar', function(req, res, next){
+router.get('/buscar', function(req, res, next){
   const {documento} = req.query;
   Cliente.findAll({
     attributes: attributesCliente,

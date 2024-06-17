@@ -44,7 +44,7 @@ router.get("/listar", function(req, res, next){
 });
 
 /* ACTUALIZAR UNA MARCA */
-router.put('/actualiza', function(req, res, next) {
+router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesMarca = req.body;
   Marca.update(
@@ -64,7 +64,7 @@ router.put('/actualiza', function(req, res, next) {
 });
 
 /* ELIMINA UNA MARCA */
-router.delete('/elimina', function(req, res, next) {
+router.delete('/eliminar', function(req, res, next) {
   const {id} = req.query;
   Marca.destroy({ where: {id} })
   .then(()=>{
@@ -79,7 +79,7 @@ router.delete('/elimina', function(req, res, next) {
 });
 
 /* BUSCAR UNA MARCA POR NOMBRE(MARCA) */
-router.get('/filtrar', function(req, res, next){
+router.get('/buscar', function(req, res, next){
   const {marca} = req.query;
   Marca.findAll({
     attributes: attributesMarca,
