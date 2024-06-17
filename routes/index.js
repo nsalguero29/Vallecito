@@ -7,6 +7,7 @@ var clientesRouter = require('./clientes');
 var marcasRouter = require('./marcas');
 var productosRouter = require('./productos');
 var proveedoresRouter = require('./proveedores');
+var ventasRouter = require('./ventas');
 
 
 /* GET home page. */
@@ -20,5 +21,6 @@ router.use('/clientes', clientesRouter);
 router.use('/marcas', marcasRouter);
 router.use('/productos', productosRouter);
 router.use('/proveedores', proveedoresRouter);
+router.use('/ventas', ventasRouter);
 
 module.exports = router;

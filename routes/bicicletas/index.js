@@ -10,34 +10,36 @@ var { attributesCliente, attributesBicicleta } = require('../attributes.json');
 router.post('/nueva', function(req, res, next) {
   const attributesBicicleta = req.body;
   const {clienteId} = req.body;
-  Cliente.findOne({
-    where:{id : clienteId}
-  })
-  .then((cliente) => {
-    if(cliente != null){
-      Bicicleta.create({
-        ...attributesBicicleta,
-        clienteId
-       })
-      .then((bicicleta)=>{
-        res.json({
-          status:'ok',
-          bicicleta
-        });
+  buscarCliente(clienteId)
+  .then(async (cliente)=>{ 
+    Bicicleta.create({
+      ...attributesBicicleta,
+      clienteId
       })
-      .catch((error) => {
-        console.log(error);
-        res.json({status:'error', error})
-      })
-    }else{
-      res.json({status:'error', message:'El Cliente no existe'})  
-    }
+    .then((bicicleta)=>{
+      res.json({
+        status:'ok',
+        bicicleta,
+        cliente
+      });
+    })
+    .catch((error) => { console.log(error); res.json({status:'error', error}) })
   })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })  
+  .catch((error) => { console.log(error); res.json({status:'error', error}) })  
 });
+
+const buscarCliente = function(clienteId){
+  return new Promise((resolve, reject) => {
+    Cliente.findOne({
+      where:{id : clienteId}
+    })
+    .then((cliente) => {
+      if(cliente != null) resolve(cliente);
+      else reject("Cliente no encontrado");
+    })
+    .catch((error) => {console.log(error); reject (error) })
+  })
+}
 
 /* GET LISTADO BICICLETA */
 router.get("/listar", function(req, res, next){

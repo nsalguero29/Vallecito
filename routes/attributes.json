@@ -36,5 +36,12 @@
         "direccion",
         "telefono",
         "email"
+    ],    
+    "attributesVenta" : [
+        "numFactura",
+        "tipoPago",
+        "valorFinal",
+        "observacion",
+        "clienteId"
     ]
 }
