@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const { Op } = require('sequelize');
+var funciones = require('../funciones');
 
 var { Cliente, Bicicleta } = require('../../db/main');
 
@@ -10,7 +11,7 @@ var { attributesCliente, attributesBicicleta } = require('../attributes.json');
 router.post('/nueva', function(req, res, next) {
   const attributesBicicleta = req.body;
   const {clienteId} = req.body;
-  buscarCliente(clienteId)
+  funciones.buscarClienteId(clienteId)
   .then(async (cliente)=>{ 
     Bicicleta.create({
       ...attributesBicicleta,
@@ -27,19 +28,6 @@ router.post('/nueva', function(req, res, next) {
   })
   .catch((error) => { console.log(error); res.json({status:'error', error}) })  
 });
-
-const buscarCliente = function(clienteId){
-  return new Promise((resolve, reject) => {
-    Cliente.findOne({
-      where:{id : clienteId}
-    })
-    .then((cliente) => {
-      if(cliente != null) resolve(cliente);
-      else reject("Cliente no encontrado");
-    })
-    .catch((error) => {console.log(error); reject (error) })
-  })
-}
 
 /* GET LISTADO BICICLETA */
 router.get("/listar", function(req, res, next){

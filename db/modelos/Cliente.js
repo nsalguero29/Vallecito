@@ -4,8 +4,8 @@ function definir(sequelize){
   const Cliente = sequelize.define('cliente', {
     numCliente: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, allowNull: false },
     documento: { type: DataTypes.STRING, allowNull: false },
-    apellido: { type: DataTypes.STRING, allowNull: true },
-    nombre: { type: DataTypes.STRING, allowNull: true },
+    apellidos: { type: DataTypes.STRING, allowNull: true },
+    nombres: { type: DataTypes.STRING, allowNull: true },
     fechaNac: { type: DataTypes.DATE, allowNull: true },
     direccion: { type: DataTypes.STRING, allowNull: true },
     telefono: { type: DataTypes.STRING, allowNull: true },

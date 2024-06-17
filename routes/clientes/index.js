@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
 var { Cliente, Bicicleta } = require('../../db/main');
+var funciones = require('../funciones');
 
 var { attributesCliente, attributesBicicleta } = require('../attributes.json');
 
@@ -77,21 +78,10 @@ router.delete('/eliminar', function(req, res, next) {
   })
 });
 
-/* BUSCAR UN POR DOCUMENTO */
-router.get('/buscar', function(req, res, next){
+/* FILTRAR CLIENTES POR DOCUMENTO */
+router.get('/filtrar', function(req, res, next){
   const {documento} = req.query;
-  Cliente.findAll({
-    attributes: attributesCliente,
-    include:[{
-      model: Bicicleta,
-      attributes: attributesBicicleta
-    }],
-    where:{ 
-      documento: { 
-        [Op.like]: documento + '%'
-      }
-    }
-  })
+  funciones.filtrarClientesDocumento(documento)
   .then((clientes)=>{
     res.json({
       status:'ok',

@@ -1,105 +1,90 @@
 var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
+var funciones = require('../funciones');
+
 var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, ProductoVenta, Arreglo, Venta} = require('../../db/main');
 
 var { attributesArreglo, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor, attributesVenta } = require('../attributes.json');
 
-const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
+const estadosCompleto = ['creado', 'pagado', 'anulado'];
 
 /* VENTAS */
 /* POST NUEVO VENTAS */
 router.post('/nuevo', function(req, res, next) {
   const attributesVenta = req.body;
   const {arreglos, productos, documento} = req.body;
-  buscarCliente(documento)
+  funciones.buscarClienteDocumento(documento)
   .then(async (cliente)=>{
-    buscarArreglos(arreglos)
+    funciones.buscarArreglosIds(arreglos)
     .then(async (arreglosLista)=>{
-      buscarProductos(productos)
-      .then(async (productosLista)=>{
-        
-        Venta.create({
-          ...attributesVenta,
-          clienteId : cliente.id
-        })
-        .then((nuevaVenta) => {
-          if(arreglosLista.length != 0){
-            arreglosLista.forEach(arreg => {
-              Arreglo.update({ventaId : nuevaVenta.id}, {where : {id : arreg.id}});
-            });
+      if(arreglosLista.length === arreglos.length){  
+        funciones.buscarProductosIds(productos)
+        .then(async (productosLista)=>{ 
+          if(productosLista.length === productos.length){
+            Venta.create({
+              ...attributesVenta,
+              clienteId : cliente.id
+            })
+            .then((nuevaVenta) => {
+              if(arreglosLista.length != 0){
+                arreglosLista.forEach(arreg => {
+                  Arreglo.update({ventaId : nuevaVenta.id}, {where : {id : arreg.id}});
+                });
+              }
+              if(productosLista.length != 0){
+                console.log({productosLista});
+                productosLista.forEach(prod => {
+                  ProductoVenta.create({ventaId : nuevaVenta.id, productoId : prod.id});
+                });
+              }
+              res.json({
+                status:'ok',
+                nuevaVenta
+              });           
+            })
+          }else{
+            res.json({status:'error', error: "Algun Producto no encontrado"});
           }
-          if(productosLista.length != 0){
-            productosLista.forEach(prod => {
-              ProductoVenta.create({ventaId : nuevaVenta.id, productoId : prod.id});
-            });
-          }
-          Venta.findOne(
-            {all: true},
-            {where : { id : nuevaVenta.id }}
-          ).then((venta)=>{
-            res.json({
-              status:'ok',
-              venta
-            }); 
-          })
-          .catch((error) => {
-            console.log(error);
-            res.json({status:'error', message:error})
-          });
         })
-      })
-      .catch((error) =>{ console.log(error); reject(error) });
+        .catch((error) => {
+          console.log(error);
+          res.json({status:'error', error})
+        })
+      }else{
+        res.json({status:'error', error: "Algun Arreglo no encontrado"});
+      }
     })
-    .catch((error) =>{ console.log(error); reject(error) });
+    .catch((error) => {
+      console.log(error);
+      res.json({status:'error', error})
+    })
   })
-  .catch((error) =>{ console.log(error); reject(error) });
+  .catch((error) => {
+    console.log(error);
+    res.json({status:'error', error})
+  })
 })
-
-const buscarCliente = function(documento){
-  return new Promise((resolve, reject) => {
-    Cliente.findOne({where : { documento }})
-    .then((cliente) => {
-      console.log({cliente});
-      if(cliente !== null) 
-        resolve(cliente);
-      else
-        reject("Cliente no encontrado");
-    })
-    .catch((error) =>{ console.log(error); reject(error) });
-  })
-}
-
-const buscarArreglos = function(arreglos) {
-  return new Promise((resolve, reject) => {
-    Arreglo.findAll({
-      where: { id : { [Op.in] : arreglos} }
-    })
-    .then((arreglosLista)=>{resolve (arreglosLista);})
-    .catch((error) => {console.log(error); reject(error) });
-  })
-}
-
-const buscarProductos = function(productos) {
-  return new Promise((resolve, reject) => {
-    Producto.findAll({
-      where: { id : { [Op.in] : productos} }
-    })
-    .then((productosLista)=>{resolve (productosLista);})
-    .catch((error) => {console.log(error); reject(error) });
-  })
-}
 
 /* GET LISTADO ARREGLOS */
 router.get("/listar", function(req, res, next){
   const {estadosFiltrados} = req.body;
-  Arreglo.findAll({
-    attributes: attributesArreglo,
+  Venta.findAll({
+    attributes: attributesVenta,
     include:[{
-        model: Bicicleta,
-        include: { 
-          model: Cliente 
-        }
+        model: Cliente
+    },
+    {
+      model: Arreglo,
+      include: [{ 
+          model: Producto
+        },
+        { 
+          model: Bicicleta
+        }]
+    },
+    {
+      model: Producto
     }],
     where:{ 
         estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto}

@@ -11,6 +11,7 @@ function definir(sequelize){
     ], allowNull: false },
     valorFinal: { type: DataTypes.DOUBLE, allowNull: true },
     observacion: { type: DataTypes.STRING, allowNull: true },
+    estado: { type: DataTypes.ENUM, values:['creado', 'pagado', 'anulado'], defaultValue:'creado', allowNull: false },
   }, { sequelize, paranoid: true, modelName: 'venta', tableName: 'ventas'});
   return Ventas;
 }

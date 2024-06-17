@@ -10,12 +10,12 @@ const sequelize = new Sequelize(cn, {logging: false});
 //MODELOS
 var Arreglo = require('./modelos/Arreglo')(sequelize);
 var Bicicleta = require('./modelos/Bicicleta')(sequelize);
-var BicicletaArreglo = require('./modelos/BicicletaArreglo')(sequelize);
 var Cliente = require('./modelos/Cliente')(sequelize);
 var Compra = require('./modelos/Compra')(sequelize);
 var DetalleCompra = require('./modelos/DetalleCompra')(sequelize);
 var Marca = require('./modelos/Marca')(sequelize);
 var Producto = require('./modelos/Producto')(sequelize);
+var ProductoArreglo = require('./modelos/ProductoArreglo')(sequelize);
 var ProductoMarca = require('./modelos/ProductoMarca')(sequelize);
 var ProductoProveedor = require('./modelos/ProductoProveedor')(sequelize);
 var ProductoVenta = require('./modelos/ProductoVenta')(sequelize);
@@ -35,10 +35,10 @@ Marca.belongsToMany(Producto, {
 
 //MUCHOS PROD <-> MUCHOS ARREGLOS
 Producto.belongsToMany(Arreglo, {
-   through: 'productoArreglo', foreignKey: 'productoId', sourceKey: 'id' 
+   through: ProductoArreglo, foreignKey: 'productoId', sourceKey: 'id' 
 });
 Arreglo.belongsToMany(Producto, {
-  through: 'productoArreglo', foreignKey: 'arregloId', sourceKey: 'id' 
+  through: ProductoArreglo, foreignKey: 'arregloId', sourceKey: 'id' 
 });
 
 //MUCHOS PROD <-> MUCHOS PROOVEDOR
@@ -57,7 +57,7 @@ Compra.hasMany(DetalleCompra, {
   foreignKey: 'compraId', sourceKey: 'id' 
 });
 
-//MUCHOS PROD <-> MUCHOS DETALLES
+//1 PROD <-> MUCHOS DETALLES
 Producto.belongsToMany(DetalleCompra, {
   through: DetalleCompra, foreignKey: 'productoId', sourceKey: 'id' 
  });
@@ -73,22 +73,16 @@ Proveedor.belongsToMany(Compra, {
  through: DetalleCompra, foreignKey: 'compraId', sourceKey: 'id' 
 });
 
-//MUCHAS BICI -> MUCHOS ARREGLOS
-/*Bicicleta.belongsToMany(Arreglo, {
-  through: BicicletaArreglo, foreignKey: 'bicicletaId', sourceKey: 'id'
-});
-
-Arreglo.belongsToMany(Bicicleta, {
-  through: BicicletaArreglo, foreignKey: 'arregloId', sourceKey: 'id'
-});*/
-
-Arreglo.belongsTo(Bicicleta,{
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'bicicletaId', sourceKey: 'id',  
-});
+//1 BICI TIENE MUCHOS ARREGLOS
 Bicicleta.hasMany(Arreglo,{
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   sourceKey: 'id',
+});
+
+//1 ARREGLO TIENE 1 BICI
+Arreglo.belongsTo(Bicicleta,{
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'bicicletaId', sourceKey: 'id',  
 });
 
 //1 CLIENTE -> MUCHAS BICI
@@ -103,6 +97,7 @@ Cliente.hasMany(Venta, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   foreignKey: 'clienteId', sourceKey: 'id',
 });
+Venta.belongsTo(Cliente);
 
 //1 VENTA -> MUCHOS ARREGLOS
 Venta.hasMany(Arreglo, {
@@ -138,12 +133,12 @@ module.exports = {
   iniciarDB,
   Arreglo,
   Bicicleta,
-  BicicletaArreglo,
   Cliente,
   Compra,
   DetalleCompra,
   Marca,
   Producto,
+  ProductoArreglo,
   ProductoMarca,
   ProductoProveedor,
   ProductoVenta,

@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
-var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, Arreglo} = require('../../db/main');
+var funciones = require('../funciones');
 
-var { attributesArreglo, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
+var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, Arreglo, ProductoArreglo} = require('../../db/main');
+
+var { attributesArreglo} = require('../attributes.json');
 
 const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
 
@@ -12,39 +14,27 @@ const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anul
 router.post('/nuevo', function(req, res, next) {
   const attributesArreglo = req.body;
   const {bicicletaId, repuestos} = req.body;
-  Bicicleta.findOne({
-    where: {id: bicicletaId}
-  })
+  funciones.buscarBicicletaId(bicicletaId)
   .then(async (bicileta)=>{
-    if(bicileta !== null){
+    Arreglo.create({
+      ...attributesArreglo,
+      bicicletaId
+    })
+    .then(async(arreglo)=>{
       if(repuestos.length !== 0){
-
-      }else{        
-        Arreglo.create({
-          ...attributesArreglo,
-          bicicletaId
-        })
-        .then(async(arreglo)=>{
-          //BicicletaArreglo.create({arregloId: arreglo.id, bicicletaId})
-          //.then(()=>{
-            res.json({
-              status:'ok',
-              arreglo
-            });                  
-          /*})
-          .catch((error) => {
-            console.log(error);
-            res.json({status:'error', error})
-          }); */
-        })
-        .catch((error) => {
-          console.log(error);
-          res.json({status:'error', error})
-        });     
-      }
-    }else{
-      res.json({status:'error', message:'Bicileta no encontrado'})
-    }
+        repuestos.forEach(r => {
+          ProductoArreglo.create({arregloId: arreglo.id, productoId: r})
+        });
+      }   
+      res.json({
+        status:'ok',
+        arreglo
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.json({status:'error', error})
+    }); 
   })
   .catch((error) => {
     console.log(error);
@@ -62,7 +52,11 @@ router.get("/listar", function(req, res, next){
         include: { 
           model: Cliente 
         }
-    }],
+    },
+    {
+      model: Producto,
+    }
+    ],
     where:{ 
         estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto}
     }
@@ -84,12 +78,16 @@ router.get('/buscarBici', function(req, res, next){
   const {bicicletaId} = req.query;
   const {estadosFiltrados} = req.body;
   Arreglo.findAll({
-    include: { 
-      model: Bicicleta,
-      include: { 
-        model: Cliente 
-      }
+    include:[{
+        model: Bicicleta,
+        include: { 
+          model: Cliente 
+        }
     },
+    {
+      model: Producto,
+    }
+    ],
     where:{ 
       bicicletaId,
       estado: {[Op.or]: [estadosFiltrados]}

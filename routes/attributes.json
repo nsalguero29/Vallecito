@@ -7,8 +7,8 @@
     ],
     "attributesCliente": [
         "documento",
-        "apellido",
-        "nombre",
+        "apellidos",
+        "nombres",
         "fechaNac",
         "direccion",
         "telefono",
