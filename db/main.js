@@ -25,14 +25,6 @@ var Venta = require('./modelos/Venta')(sequelize);
 
 //RELACIONES
 
-//MUCHOS PROD <-> MUCHAS MARCA
-Producto.belongsToMany(Marca, {
-  through: ProductoMarca, foreignKey: 'productoId', sourceKey: 'id' 
-});
-Marca.belongsToMany(Producto, {
- through: ProductoMarca, foreignKey: 'marcaId', sourceKey: 'id' 
-});
-
 //MUCHOS PROD <-> MUCHOS ARREGLOS
 Producto.belongsToMany(Arreglo, {
    through: ProductoArreglo, foreignKey: 'productoId', sourceKey: 'id' 
@@ -41,14 +33,20 @@ Arreglo.belongsToMany(Producto, {
   through: ProductoArreglo, foreignKey: 'arregloId', sourceKey: 'id' 
 });
 
+//MUCHOS PROD <-> MUCHAS MARCA
+Producto.belongsToMany(Marca, {
+  through: ProductoMarca, foreignKey: 'productoId', as:'marca' 
+});
+Marca.belongsToMany(Producto, {
+ through: ProductoMarca, foreignKey: 'marcaId', as:'producto'
+});
+
 //MUCHOS PROD <-> MUCHOS PROOVEDOR
 Producto.belongsToMany(Proveedor, {
-  through: ProductoProveedor, foreignKey: 'productoId', sourceKey: 'id',
-  as: 'proveedores' 
+  through: ProductoProveedor, foreignKey: 'productoId', as: 'proveedor'
 });
 Proveedor.belongsToMany(Producto, {
- through: ProductoProveedor, foreignKey: 'proveedorId', sourceKey: 'id',
- as:'productos'
+ through: ProductoProveedor, foreignKey: 'proveedorId', as: 'producto'
 });
 
 //1 COMPRA -> MUCHOS DETALLES

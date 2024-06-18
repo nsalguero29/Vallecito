@@ -5,7 +5,7 @@ function definir(sequelize){
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false },
     cantidad: {type: DataTypes.INTEGER, allowNull: false, defaultValue: 1},
     observacion: { type: DataTypes.STRING, allowNull: true },
-  }, { sequelize, paranoid: true, modelName: 'productoArreglo', tableName: 'productosArreglo'});
+  }, { sequelize, modelName: 'productoArreglo', tableName: 'productosArreglo'});
   return ProductoArreglo;
 }
 

@@ -4,7 +4,7 @@ function definir(sequelize){
   const ProductoMarca = sequelize.define('productoMarca', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false },
     activo: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-  }, { sequelize, paranoid: true, modelName: 'productoMarca', tableName: 'productosMarcas'});
+  }, { sequelize, modelName: 'productoMarca', tableName: 'productosMarcas'});
   return ProductoMarca;
 }
 
