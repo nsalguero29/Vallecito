@@ -25,10 +25,9 @@ router.post('/nuevo', function(req, res, next) {
 /* GET LISTADO CLIENTES */
 router.get("/listar", function(req, res, next){
   Cliente.findAll({
-    attributes: attributesCliente,
     include:[{
       model: Bicicleta,
-      attributes: attributesBicicleta
+      as: 'bicicletas'
     }]
   })
   .then((clientes)=>{

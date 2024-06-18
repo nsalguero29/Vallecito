@@ -88,7 +88,8 @@ Arreglo.belongsTo(Bicicleta,{
 //1 CLIENTE -> MUCHAS BICI
 Cliente.hasMany(Bicicleta,{
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'clienteId', sourceKey: 'id',  
+  foreignKey: 'clienteId', sourceKey: 'id', 
+  as: 'bicicletas' 
 });
 Bicicleta.belongsTo(Cliente);
 

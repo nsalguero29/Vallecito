@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize"); // Import the built-in data types
 
 function definir(sequelize){
-  const Bicicleta = sequelize.define('bicileta', {
+  const Bicicleta = sequelize.define('bicicleta', {
     modelo: { type: DataTypes.STRING, allowNull: true },
     rodado: { type: DataTypes.ENUM, values:[
       '12', 
