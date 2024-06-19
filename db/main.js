@@ -27,7 +27,7 @@ var Venta = require('./modelos/Venta')(sequelize);
 
 //MUCHOS PROD <-> MUCHOS ARREGLOS
 Producto.belongsToMany(Arreglo, {
-   through: ProductoArreglo, foreignKey: 'productoId', sourceKey: 'id' 
+   through: ProductoArreglo, foreignKey: 'productoId', sourceKey: 'id'
 });
 Arreglo.belongsToMany(Producto, {
   through: ProductoArreglo, foreignKey: 'arregloId', sourceKey: 'id' 
@@ -74,13 +74,14 @@ Proveedor.belongsToMany(Compra, {
 //1 BICI TIENE MUCHOS ARREGLOS
 Bicicleta.hasMany(Arreglo,{
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  sourceKey: 'id',
+  sourceKey: 'id', as:'arreglos'
 });
 
 //1 ARREGLO TIENE 1 BICI
 Arreglo.belongsTo(Bicicleta,{
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   foreignKey: 'bicicletaId', sourceKey: 'id',  
+  as: 'bicicleta'
 });
 
 //1 CLIENTE -> MUCHAS BICI
@@ -107,7 +108,7 @@ Venta.hasMany(Arreglo, {
 
 //MUCHAS VENTAS <-> MUCHOS PRODUCTOS
 Venta.belongsToMany(Producto, {
-  through: ProductoVenta, foreignKey: 'productoId', sourceKey: 'id' 
+  through: ProductoVenta, foreignKey: 'productoId', sourceKey: 'id'
 });
 Producto.belongsToMany(Venta, {
  through: ProductoVenta, foreignKey: 'ventaId', sourceKey: 'id' 

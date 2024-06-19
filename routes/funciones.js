@@ -151,7 +151,7 @@ const buscarBicicletaId = function (bicicletaId) {
 		Bicicleta.findOne({ where: { id: bicicletaId } })
 			.then((bicicleta) => {
 				if (bicicleta != null) resolve(bicicleta);
-				else reject("Bicicleta no encontrado");
+				else reject("Bicicleta no encontrada");
 			})
 			.catch((error) => { console.log(error); reject(error) })
 	})

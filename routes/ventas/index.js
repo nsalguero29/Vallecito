@@ -11,10 +11,10 @@ const estadosCompleto = ['creado', 'pagado', 'anulado'];
 
 /* VENTAS */
 /* POST NUEVO VENTAS */
-router.post('/nuevo', function(req, res, next) {
+router.post('/nuevo', async function(req, res, next) {
   const attributesVenta = req.body;
-  const {arreglos, productos, documento} = req.body;
-  funciones.buscarClienteDocumento(documento)
+  const {arreglos, productos, clienteId} = attributesVenta;
+  funciones.buscarClienteId(clienteId)
   .then(async (cliente)=>{
     funciones.buscarArreglosIds(arreglos)
     .then(async (arreglosLista)=>{
@@ -24,7 +24,7 @@ router.post('/nuevo', function(req, res, next) {
           if(productosLista.length === productos.length){
             Venta.create({
               ...attributesVenta,
-              clienteId : cliente.id
+              clienteId
             })
             .then((nuevaVenta) => {
               if(arreglosLista.length != 0){
@@ -33,15 +33,34 @@ router.post('/nuevo', function(req, res, next) {
                 });
               }
               if(productosLista.length != 0){
-                console.log({productosLista});
-                productosLista.forEach(prod => {
-                  ProductoVenta.create({ventaId : nuevaVenta.id, productoId : prod.id});
-                });
+                nuevaVenta.addProducto(productos);
+                nuevaVenta.save();
+
               }
-              res.json({
-                status:'ok',
-                nuevaVenta
-              });           
+              Venta.findOne({
+                attributes: attributesVenta,
+                include:[{
+                    model: Cliente
+                },
+                {
+                  model: Arreglo,
+                  include: [{ 
+                      model: Producto
+                    },
+                    { 
+                      model: Bicicleta
+                    }]
+                },
+                {
+                  model: Producto
+                }],
+                where:{ 
+                    id: nuevaVenta.id,
+                    estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto}
+                }
+              })
+              .then(()=>{ res.json({ status:'ok', nuevaVenta }); })
+              .catch((error) => { console.log(error); res.json({status:'error', error}) });
             })
           }else{
             res.json({status:'error', error: "Algun Producto no encontrado"});

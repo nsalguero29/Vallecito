@@ -15,29 +15,23 @@ router.post('/nuevo', async function(req, res, next) {
   const attributesArreglo = req.body;
   const {bicicletaId, repuestos} = req.body;
   funciones.buscarBicicletaId(bicicletaId)
-  .then(()=>{
-    Arreglo.create({
-      ...attributesArreglo,
-      bicicletaId      
-    })
-    .then(async (arreglo)=>{
+  .then(async (bicicleta)=>{
+    if(bicicleta != null){
       funciones.buscarProductosIds(repuestos)
       .then(async (repuestosLista)=>{
-        if(repuestosLista.length != repuestos.length){
-          res.json({status:'error', "error":"Repuestos no encontrados"});
+        if(repuestosLista.length === repuestos.length){
+          const arreglo = await Arreglo.build({...attributesArreglo, bicicletaId});
+          //arreglo.setBicicleta(bicicletaId);
+          await arreglo.addProductos(repuestos);
+          await arreglo.save();          
+          res.json({status:'ok', arreglo});          
         }else{
-          await arreglo.addProducto(repuestos);
-          Arreglo.findOne({include:{all:true}, where:{id:arreglo.id}})
-          .then((arreglo)=>{
-            res.json({status:'ok', arreglo});
-          })
+          res.json({status:'error', "error":"Repuestos no encontrados"});
         }
       })
-    })
-    .catch((error) => {
-      console.log(error);
-      res.json({status:'error', error})
-    }); 
+    }else{
+      res.json({status:'error', "error":"Bicicleta no encontrada"});
+    }
   })
   .catch((error) => {
     console.log(error);
@@ -54,7 +48,8 @@ router.get("/listar", function(req, res, next){
         model: Bicicleta,
         include: { 
           model: Cliente 
-        }
+        },
+        as: 'bicicleta'
     },
     {
       model: Producto,
