@@ -11,25 +11,28 @@ const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anul
 
 /* ARREGLOS */
 /* POST NUEVO ARREGLO */
-router.post('/nuevo', function(req, res, next) {
+router.post('/nuevo', async function(req, res, next) {
   const attributesArreglo = req.body;
   const {bicicletaId, repuestos} = req.body;
   funciones.buscarBicicletaId(bicicletaId)
-  .then(async (bicileta)=>{
+  .then(()=>{
     Arreglo.create({
       ...attributesArreglo,
-      bicicletaId
+      bicicletaId      
     })
-    .then(async(arreglo)=>{
-      if(repuestos.length !== 0){
-        repuestos.forEach(r => {
-          ProductoArreglo.create({arregloId: arreglo.id, productoId: r})
-        });
-      }   
-      res.json({
-        status:'ok',
-        arreglo
-      });
+    .then(async (arreglo)=>{
+      funciones.buscarProductosIds(repuestos)
+      .then(async (repuestosLista)=>{
+        if(repuestosLista.length != repuestos.length){
+          res.json({status:'error', "error":"Repuestos no encontrados"});
+        }else{
+          await arreglo.addProducto(repuestos);
+          Arreglo.findOne({include:{all:true}, where:{id:arreglo.id}})
+          .then((arreglo)=>{
+            res.json({status:'ok', arreglo});
+          })
+        }
+      })
     })
     .catch((error) => {
       console.log(error);

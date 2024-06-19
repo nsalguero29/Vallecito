@@ -35,18 +35,18 @@ Arreglo.belongsToMany(Producto, {
 
 //MUCHOS PROD <-> MUCHAS MARCA
 Producto.belongsToMany(Marca, {
-  through: ProductoMarca, foreignKey: 'productoId', as:'marca' 
+  through: ProductoMarca, foreignKey: 'productoId', as:'marcas' 
 });
 Marca.belongsToMany(Producto, {
- through: ProductoMarca, foreignKey: 'marcaId', as:'producto'
+ through: ProductoMarca, foreignKey: 'marcaId', as:'productos'
 });
 
 //MUCHOS PROD <-> MUCHOS PROOVEDOR
 Producto.belongsToMany(Proveedor, {
-  through: ProductoProveedor, foreignKey: 'productoId', as: 'proveedor'
+  through: ProductoProveedor, foreignKey: 'productoId', as: 'proveedors'
 });
 Proveedor.belongsToMany(Producto, {
- through: ProductoProveedor, foreignKey: 'proveedorId', as: 'producto'
+ through: ProductoProveedor, foreignKey: 'proveedorId', as: 'productos'
 });
 
 //1 COMPRA -> MUCHOS DETALLES
@@ -95,6 +95,7 @@ Bicicleta.belongsTo(Cliente);
 Cliente.hasMany(Venta, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   foreignKey: 'clienteId', sourceKey: 'id',
+  as: 'ventas'
 });
 Venta.belongsTo(Cliente);
 

@@ -4,6 +4,7 @@ var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta } 
 var { attributesCliente, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor, attributesVenta } = require('./attributes.json');
 const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
 
+//#region CLIENTE
 const buscarClienteId = function (clienteId) {
 	return new Promise((resolve, reject) => {
 		Cliente.findOne({ where: { id: clienteId } })
@@ -26,6 +27,27 @@ const buscarClienteDocumento = function (documento) {
 	})
 }
 
+const buscarClientesDocumento = function (documento) {
+	return new Promise((resolve, reject) => {
+		Cliente.findAll({
+			attributes: attributesCliente,
+			include: [{
+				model: Bicicleta,
+				attributes: attributesBicicleta
+			}],
+			where: { documento: { [Op.like]: documento + '%' } }
+		})
+			.then((clientes) => {
+				if (clientes !== undefined) resolve(clientes);
+				else resolve('Sin resultados');
+			})
+			.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+//#endregion
+
+//#region ARREGLOS
 const buscarArreglosIds = function (arreglos) {
 	return new Promise((resolve, reject) => {
 		Arreglo.findAll({
@@ -35,7 +57,9 @@ const buscarArreglosIds = function (arreglos) {
 			.catch((error) => { console.log(error); reject(error) });
 	})
 }
+//#endregion
 
+//#region PRODUCTOS
 const buscarProductoId = function (productoId) {
 	return new Promise((resolve, reject) => {
 		Producto.findOne({ where: { id: productoId } })
@@ -56,7 +80,9 @@ const buscarProductosIds = function (productos) {
 			.catch((error) => { console.log(error); reject(error) });
 	})
 }
+//#endregion
 
+//#region MARCAS
 const buscarMarcaId = function (marcaId) {
 	return new Promise((resolve, reject) => {
 		Marca.findOne({ where: { id: marcaId } })
@@ -77,15 +103,34 @@ const buscarMarcasIds = function (marcas) {
 		.catch((error) => { console.log(error); reject(error) });
 	})
 }
+//#endregion
 
+//#region PROVEEDORES
 const buscarProveedorId = function (proveedorId) {
 	return new Promise((resolve, reject) => {
-		Proveedor.findOne({ where: { id: proveedorId } })
-			.then((proveedor) => {
-				if (proveedor != null) resolve(proveedor);
-				else reject("Proveedor no encontrado");
-			})
-			.catch((error) => { console.log(error); reject(error) })
+		Proveedor.findOne({
+			include: { model: Producto, as : 'producto'},
+			where: { id: proveedorId } 
+		})
+		.then((proveedor) => {
+			if (proveedor != null) resolve(proveedor);
+			else reject("Proveedor no encontrado");
+		})
+		.catch((error) => { console.log(error); reject(error) })
+	})
+}
+
+const buscarProveedores = function (proveedor) {
+	return new Promise((resolve, reject) => {
+		Proveedor.findAll({
+			include: { model: Producto, as : 'producto'},
+			where: { proveedor: { [Op.like]: '%' + proveedor + '%' } } 
+		})
+		.then((proveedor) => {
+			if (proveedor != null) resolve(proveedor);
+			else reject("Proveedor no encontrado");
+		})
+		.catch((error) => { console.log(error); reject(error) })
 	})
 }
 
@@ -98,7 +143,9 @@ const buscarProveedoresIds = function (proveedores){
 			.catch((error) => { console.log(error); reject(error) });
 	})
 } 
+//#endregion
 
+//#region BICICLETAS
 const buscarBicicletaId = function (bicicletaId) {
 	return new Promise((resolve, reject) => {
 		Bicicleta.findOne({ where: { id: bicicletaId } })
@@ -109,28 +156,10 @@ const buscarBicicletaId = function (bicicletaId) {
 			.catch((error) => { console.log(error); reject(error) })
 	})
 }
-
-const filtrarClientesDocumento = function (documento) {
-	return new Promise((resolve, reject) => {
-		Cliente.findAll({
-			attributes: attributesCliente,
-			include: [{
-				model: Bicicleta,
-				attributes: attributesBicicleta
-			}],
-			where: { documento: { [Op.like]: documento + '%' } }
-		})
-			.then((clientes) => {
-				if (clientes !== undefined) resolve(clientes);
-				else resolve('Sin resultados');
-			})
-			.catch((error) => { console.log(error); reject(error) });
-	})
-}
+//#endregion
 
 module.exports = {
 	buscarClienteDocumento,
-	filtrarClientesDocumento,
 	buscarClienteId,
 	buscarArreglosIds,
 	buscarProductoId,
@@ -139,5 +168,7 @@ module.exports = {
 	buscarMarcasIds,
 	buscarProveedorId,
 	buscarBicicletaId,
-	buscarProveedoresIds
+	buscarProveedoresIds,
+	buscarProveedores,
+	buscarClientesDocumento
 }

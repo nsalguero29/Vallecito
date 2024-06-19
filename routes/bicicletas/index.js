@@ -1,25 +1,30 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 var funciones = require('../funciones');
 
-var { Cliente, Bicicleta } = require('../../db/main');
+var { Cliente, Bicicleta, Arreglo } = require('../../db/main');
 
 var { attributesCliente, attributesBicicleta } = require('../attributes.json');
 
 /* POST NUEVO BICICLETA */
 router.post('/nueva', function(req, res, next) {
   const attributesBicicleta = req.body;
-  const {clienteId} = req.body;
+  const {clienteId} = attributesBicicleta;
   funciones.buscarClienteId(clienteId)
-  .then((cliente)=>{ 
-    cliente.setBicicletas({
+  .then(()=>{ 
+    Bicicleta.create({
       ...attributesBicicleta,
       clienteId
-      });
-    cliente.save()
-    .then((cliente)=>{ res.json({status:'ok', cliente}); })
-    .catch((error) => { console.log(error); res.json({status:'error', error}) })  
+    })
+    .then(()=>{
+      Cliente.findOne({
+        include: {all: true},
+        where: {id : clienteId}
+      })
+      .then((cliente)=>{ res.json({status:'ok', cliente}); })
+    })
+    .catch((error) => { console.log(error); res.json({status:'error', error}) })
   })
   .catch((error) => { console.log(error); res.json({status:'error', error}) })  
 });
@@ -31,6 +36,8 @@ router.get("/listar", function(req, res, next){
     include:[{
       model: Cliente,
       attributes: attributesCliente
+    },{
+      model: Arreglo
     }]
   })
   .then((bicicletas)=>{
@@ -88,6 +95,8 @@ router.get('/buscarCliente', function(req, res, next){
     include:[{
       model: Cliente,
       attributes: attributesCliente
+    },{
+      model: Arreglo
     }],
     where:{ clienteId }
   })

@@ -7,6 +7,7 @@ function definir(sequelize){
     direccion: { type: DataTypes.STRING, allowNull: true },
     telefono: { type: DataTypes.STRING, allowNull: true },
     email: { type: DataTypes.STRING, allowNull: true },
+    instagram: { type: DataTypes.STRING, allowNull: true },
   }, { sequelize, paranoid: true, modelName: 'proveedor', tableName: 'proveedores'});
   return Proveedor;
 }

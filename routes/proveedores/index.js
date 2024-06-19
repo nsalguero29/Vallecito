@@ -7,7 +7,7 @@ var { attributesMarca, attributesProducto, attributesProveedor } = require('../a
 
 /* PROVEEDORES */
 /* POST NUEVO PROVEEDOR */
-router.post('/nuevo', function(req, res, next) {
+router.post('/', function(req, res, next) {
   const attributesProveedor = req.body;
   Proveedor.create(attributesProveedor)
   .then((proveedor)=>{
@@ -32,6 +32,7 @@ router.get("/listar", function(req, res, next){
         as:'productos',
         include: [{
           model: Marca,
+          as:'marcas',
           through: { attributesMarca },
         }]
     }]

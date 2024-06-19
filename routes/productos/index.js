@@ -3,9 +3,9 @@ var router = express.Router();
 const { Op } = require("sequelize");
 var funciones = require('../funciones');
 
-var { Producto } = require('../../db/main');
+var { Producto, Marca, Proveedor } = require('../../db/main');
 
-var { attributesProducto} = require('../attributes.json');
+var {attributesProducto} = require('../attributes.json');
 
 /* PRODUCTOS */
 /* POST NUEVO PRODUCTO */
@@ -26,7 +26,18 @@ router.post('/', async function(req, res, next) {
             const producto = await Producto.create(attributesProducto);
             await producto.addProveedor(proveedores);
             await producto.addMarca(marcas);
-            res.json({status:'ok', producto});
+            Producto.findOne({
+              include: [{ 
+                model : Proveedor,
+                as : 'proveedor'
+              }, { 
+                model : Marca,
+                as : 'marca'
+              }],
+              where:{id : producto.id}
+            })
+            .then((producto)=>{res.json({status:'ok', producto});})
+            .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
           } catch (error) {
             console.log(error); res.json({status:'error', error});
           }
