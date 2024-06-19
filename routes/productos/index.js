@@ -3,9 +3,9 @@ var router = express.Router();
 const { Op } = require("sequelize");
 var funciones = require('../funciones');
 
-var { Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor} = require('../../db/main');
+var { Producto } = require('../../db/main');
 
-var { attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
+var { attributesProducto} = require('../attributes.json');
 
 /* PRODUCTOS */
 /* POST NUEVO PRODUCTO */

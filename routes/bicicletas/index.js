@@ -12,19 +12,14 @@ router.post('/nueva', function(req, res, next) {
   const attributesBicicleta = req.body;
   const {clienteId} = req.body;
   funciones.buscarClienteId(clienteId)
-  .then(async (cliente)=>{ 
-    Bicicleta.create({
+  .then((cliente)=>{ 
+    cliente.setBicicletas({
       ...attributesBicicleta,
       clienteId
-      })
-    .then((bicicleta)=>{
-      res.json({
-        status:'ok',
-        bicicleta,
-        cliente
       });
-    })
-    .catch((error) => { console.log(error); res.json({status:'error', error}) })
+    cliente.save()
+    .then((cliente)=>{ res.json({status:'ok', cliente}); })
+    .catch((error) => { console.log(error); res.json({status:'error', error}) })  
   })
   .catch((error) => { console.log(error); res.json({status:'error', error}) })  
 });
