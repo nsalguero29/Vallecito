@@ -43,7 +43,7 @@ Marca.belongsToMany(Producto, {
 
 //MUCHOS PROD <-> MUCHOS PROOVEDOR
 Producto.belongsToMany(Proveedor, {
-  through: ProductoProveedor, foreignKey: 'productoId', as: 'proveedors'
+  through: ProductoProveedor, foreignKey: 'productoId', as: 'proveedores'
 });
 Proveedor.belongsToMany(Producto, {
  through: ProductoProveedor, foreignKey: 'proveedorId', as: 'productos'

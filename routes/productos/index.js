@@ -24,15 +24,15 @@ router.post('/', async function(req, res, next) {
         }else{
           try {
             const producto = await Producto.create(attributesProducto);
-            await producto.addProveedor(proveedores);
-            await producto.addMarca(marcas);
+            await producto.addProveedores(proveedores);
+            await producto.addMarcas(marcas);
             Producto.findOne({
               include: [{ 
                 model : Proveedor,
-                as : 'proveedor'
+                as : 'proveedores'
               }, { 
                 model : Marca,
-                as : 'marca'
+                as : 'marcas'
               }],
               where:{id : producto.id}
             })
@@ -86,10 +86,12 @@ router.put('/actualizar', function(req, res, next) {
           }else{
             try {
               await producto.set(attributesProducto);
-              await producto.setProveedor(proveedores);
-              await producto.setMarca(marcas);
+              await producto.setProveedores(proveedores);
+              await producto.setMarcas(marcas);
               producto.save();
-              res.json({status:'ok', producto});
+              funciones.buscarFullProductoId (producto.id)
+              .then((producto)=>{res.json({status:'ok', producto});})
+              .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
             } catch (error) {
               console.log(error); res.json({status:'error', error});
             }
@@ -121,20 +123,9 @@ router.delete('/eliminar', function(req, res, next) {
 /* BUSCAR PRODUCTOS POR NOMBRE(PRODUCTO) */
 router.get('/buscar', function(req, res, next){
   const {producto} = req.query;
-  Producto.findAll({
-    attributes: attributesProducto,
-    include:{all: true},
-    where:{ 
-      producto: { 
-        [Op.like]: '%' + producto + '%'
-      }
-    }
-  })
+  funciones.buscarFullProductoNombre(producto)
   .then((productos)=>{
-    res.json({
-      status:'ok',
-      productos
-    });
+      res.json({status:'ok', productos});
   })
   .catch((error) => {
     console.log(error);

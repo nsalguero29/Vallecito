@@ -77,7 +77,45 @@ const buscarProductosIds = function (productos) {
 			where: { id: { [Op.in]: productos } }
 		})
 			.then((productosLista) => { resolve(productosLista); })
-			.catch((error) => { console.log(error); reject(error) });
+			.catch((error) => { reject(error) });
+	})
+}
+
+const buscarFullProductoId = function (productoId) {
+	return new Promise((resolve, reject) => {
+		Producto.findOne({
+			include: [{ 
+			  model : Proveedor,
+			  as : 'proveedores'
+			}, { 
+			  model : Marca,
+			  as : 'marcas'
+			}],
+			where:{id : productoId}
+		  })
+		  .then((producto)=>{ resolve(producto); })
+		  .catch((error) =>{ reject("Producto no encontrado"); });
+	})
+}
+
+const buscarFullProductoNombre = function (producto) {
+	return new Promise((resolve, reject) => {
+		Producto.findAll({
+			include: [{ 
+			  model : Proveedor,
+			  as : 'proveedores'
+			}, { 
+			  model : Marca,
+			  as : 'marcas'
+			}],
+			where:{ 
+				producto: { 
+					[Op.like]: '%' + producto + '%'
+				}
+			}
+		  })
+		  .then((productos)=>{ resolve(productos); })
+		  .catch((error) =>{ reject("Error al buscar productos"); });
 	})
 }
 //#endregion
@@ -164,6 +202,8 @@ module.exports = {
 	buscarArreglosIds,
 	buscarProductoId,
 	buscarProductosIds,
+	buscarFullProductoId,
+	buscarFullProductoNombre,
 	buscarMarcaId,
 	buscarMarcasIds,
 	buscarProveedorId,
