@@ -6,7 +6,7 @@ function definir(sequelize){
     documento: { type: DataTypes.STRING, allowNull: false },
     apellidos: { type: DataTypes.STRING, allowNull: true },
     nombres: { type: DataTypes.STRING, allowNull: true },
-    fechaNac: { type: DataTypes.DATE, allowNull: true },
+    fechaNac: { type: DataTypes.DATEONLY, allowNull: true },
     direccion: { type: DataTypes.STRING, allowNull: true },
     telefono: { type: DataTypes.STRING, allowNull: true },
     email: { type: DataTypes.STRING, allowNull: true },

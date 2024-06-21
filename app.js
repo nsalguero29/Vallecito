@@ -8,7 +8,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const { iniciarDB } = require('./db/main');
 
-iniciarDB('alter') // 'force' tira todo y crea nuevo / 'alter' modifica lo que haya / vacio toma lo que haya o si no lo crea
+iniciarDB() // 'force' tira todo y crea nuevo / 'alter' modifica lo que haya / vacio toma lo que haya o si no lo crea
 .then(() => console.log("DB inicializada"))
 .catch((error) => console.error('DB error:', error))
 
