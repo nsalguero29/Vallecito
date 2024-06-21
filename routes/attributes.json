@@ -39,9 +39,15 @@
     ],    
     "attributesVenta" : [
         "numFactura",
+        "facturada",
         "tipoPago",
         "valorFinal",
-        "observacion",
-        "clienteId"
+        "observacion"
+    ],
+    "attributesCompra" : [
+        "numFactura",
+        "tipoPago",
+        "valor",
+        "observacion"
     ]
 }

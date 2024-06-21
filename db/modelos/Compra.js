@@ -10,7 +10,7 @@ function definir(sequelize){
       'credito'      
     ], allowNull: false },
     valor: { type: DataTypes.DOUBLE, allowNull: true },
-    observacion: { type: DataTypes.STRING, allowNull: true },
+    observacion: { type: DataTypes.STRING, allowNull: true }
   }, { sequelize, paranoid: true, modelName: 'compra', tableName: 'compras'});
   return Compra;
 }

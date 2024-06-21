@@ -50,25 +50,39 @@ Proveedor.belongsToMany(Producto, {
 });
 
 //1 COMPRA -> MUCHOS DETALLES
-Compra.hasMany(DetalleCompra, {
+/*Compra.hasMany(DetalleCompra, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   foreignKey: 'compraId', sourceKey: 'id' 
 });
+DetalleCompra.belongsTo(Compra,{
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'compraId', sourceKey: 'id',  
+  as: 'compra'
+});
+DetalleCompra.belongsTo(Producto, {
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'productoId', sourceKey: 'id',  
+  as: 'producto'
+});*/
 
-//1 PROD <-> MUCHOS DETALLES
-Producto.belongsToMany(DetalleCompra, {
-  through: DetalleCompra, foreignKey: 'productoId', sourceKey: 'id' 
- });
-DetalleCompra.belongsToMany(Producto, {
- through: DetalleCompra, foreignKey: 'compraId', sourceKey: 'id' 
+//MUCHAS COMPRAS <-> MUCHOS PROOD
+Compra.belongsToMany(Producto, {
+  through: DetalleCompra, foreignKey: 'compraId', as: 'productos' 
+});
+Producto.belongsToMany(Compra, {
+ through: DetalleCompra, foreignKey: 'productoId', as: 'compras'
 });
 
-//MUCHAS COMPRAS <-> MUCHOS PROOV
-Compra.belongsToMany(Proveedor, {
-  through: DetalleCompra, foreignKey: 'proveedorId', sourceKey: 'id' 
+Proveedor.hasMany(Compra,{
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  sourceKey: 'id'
 });
-Proveedor.belongsToMany(Compra, {
- through: DetalleCompra, foreignKey: 'compraId', sourceKey: 'id' 
+
+//1 Compra TIENE 1 Proveedor
+Compra.belongsTo(Proveedor,{
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'proveedorId', sourceKey: 'id',  
+  as: 'proveedor'
 });
 
 //1 BICI TIENE MUCHOS ARREGLOS

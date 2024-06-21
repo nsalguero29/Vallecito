@@ -4,6 +4,7 @@ var router = express.Router();
 var arreglosRouter = require('./arreglos');
 var bicicletasRouter = require('./bicicletas');
 var clientesRouter = require('./clientes');
+var comprasRouter = require('./compras');
 var marcasRouter = require('./marcas');
 var productosRouter = require('./productos');
 var proveedoresRouter = require('./proveedores');
@@ -18,6 +19,7 @@ router.get('/', function(req, res, next) {
 router.use('/arreglos', arreglosRouter);
 router.use('/bicicletas', bicicletasRouter);
 router.use('/clientes', clientesRouter);
+router.use('/compras', comprasRouter);
 router.use('/marcas', marcasRouter);
 router.use('/productos', productosRouter);
 router.use('/proveedores', proveedoresRouter);

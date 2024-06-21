@@ -1,9 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
 var funciones = require('../funciones');
-
-var {Arreglo, Bicicleta, Cliente, Producto, Arreglo, Venta} = require('../../db/main');
+var {Venta} = require('../../db/main');
 
 /* VENTAS */
 /* POST NUEVO VENTAS */
@@ -23,7 +21,7 @@ router.post('/', async function(req, res, next) {
               await venta.setArreglos(arreglos);                
             }
             if(productosLista.length != 0){
-              await venta.addProductos(productos);
+              await venta.setProductos(productos);
             }
             funciones.buscarFullVentaId(venta.id)
             .then((venta)=>{ res.json({ status:'ok', venta }); })
@@ -53,8 +51,8 @@ router.post('/', async function(req, res, next) {
 
 /* GET LISTADO VENTAS */
 router.get("/listar", function(req, res, next){
-  const {estadosFiltrados, tiposPagoFiltrados} = req.body;
-  funciones.listarFullVentas(estadosFiltrados, tiposPagoFiltrados)
+  const {tiposPagoFiltrados, facturadas} = req.body;
+  funciones.listarFullVentas(tiposPagoFiltrados, facturadas)
   .then((ventas)=>{ res.json({ status:'ok', ventas }); })
   .catch((error) => { console.log(error); res.json({status:'error', error}) });
 });
@@ -74,16 +72,21 @@ router.put('/actualizar', async function(req, res, next) {
           if(productosLista.length === productos.length){
             funciones.buscarVentaId(id)
             .then(async (venta)=>{
-              await venta.update({...attributesVenta,clienteId},{where:{id}});
-              if(arreglosLista.length != 0){
-                await venta.setArreglos(arreglos);
+              try {
+                await venta.set({...attributesVenta,clienteId});
+                if(arreglosLista.length != 0){
+                  await venta.setArreglos(arreglos);
+                }
+                if(productosLista.length != 0){
+                  await venta.setProductos(productos);
+                }
+                venta.save();
+                funciones.buscarFullVentaId(venta.id)
+                .then((venta)=>{ res.json({ status:'ok', venta }); })
+                .catch((error) => { console.log(error); res.json({status:'error', error}) });
+              } catch (error) {
+                console.log(error); res.json({status:'error', error});
               }
-              if(productosLista.length != 0){
-                await venta.setProductos(productos);
-              }
-              funciones.buscarFullVentaId(venta.id)
-              .then((venta)=>{ res.json({ status:'ok', venta }); })
-              .catch((error) => { console.log(error); res.json({status:'error', error}) });
             })
             .catch((error) => { console.log(error); res.json({status:'error', error}) });
           }else{

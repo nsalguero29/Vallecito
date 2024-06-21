@@ -1,10 +1,10 @@
 const { Op, where } = require("sequelize");
-var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta } = require('../db/main');
+var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta, Compra, DetalleCompra} = require('../db/main');
 
-var { attributesCliente, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');
+var { attributesCliente, attributesBicicleta, attributesCompra, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');
 const estadosArreglosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
 const estadosVentasCompleto = ['creado', 'pagado', 'anulado'];
-const tiposPagoVentasCompleto = ['efectivo', 'transferencia', 'debito', 'credito'];
+const tiposPagoCompleto = ['efectivo', 'transferencia', 'debito', 'credito'];
 
 //#region CLIENTE
 const buscarClienteId = function (clienteId) {
@@ -231,7 +231,7 @@ const listarMarcas = function () {
 const buscarProveedorId = function (proveedorId) {
 	return new Promise((resolve, reject) => {
 		Proveedor.findOne({
-			include: { model: Producto, as : 'producto'},
+			include: { model: Producto, as : 'productos'},
 			where: { id: proveedorId } 
 		})
 		.then((proveedor) => {
@@ -245,7 +245,7 @@ const buscarProveedorId = function (proveedorId) {
 const buscarProveedores = function (proveedor) {
 	return new Promise((resolve, reject) => {
 		Proveedor.findAll({
-			include: { model: Producto, as : 'producto'},
+			include: { model: Producto, as : 'productos'},
 			where: { proveedor: { [Op.like]: '%' + proveedor + '%' } } 
 		})
 		.then((proveedor) => {
@@ -291,7 +291,6 @@ const buscarBicicletaId = function (bicicletaId) {
 //#endregion
 
 //#region VENTAS
-
 const buscarVentaId = function (ventaId){
 	return new Promise((resolve, reject) => {
 		Venta.findOne({
@@ -303,7 +302,7 @@ const buscarVentaId = function (ventaId){
 	})
 }
 
-const buscarFullVentaId = function (ventaId, estadosFiltrados) {
+const buscarFullVentaId = function (ventaId) {
 	return new Promise((resolve, reject) => {
 		Venta.findOne({
 			attributes: attributesVenta,
@@ -326,16 +325,15 @@ const buscarFullVentaId = function (ventaId, estadosFiltrados) {
 				as: 'productos'
 			}],
 			where:{ 
-				id: ventaId,
-				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosVentasCompleto}
+				id: ventaId
 			}
 		  })
 		.then((venta) => { console.log(venta); resolve(venta); })
-		.catch((error) => { console.log(error); reject(error) });
+		.catch((error) => { console.log(error); reject(error); });
 	})
 }
 
-const listarFullVentas = function (estadosFiltrados, tiposPagoFiltrados) {
+const listarFullVentas = function (tiposPagoFiltrados, facturadas) {
 	return new Promise((resolve, reject) => {
 		Venta.findAll({
 			attributes: attributesVenta,
@@ -363,8 +361,8 @@ const listarFullVentas = function (estadosFiltrados, tiposPagoFiltrados) {
 				as: 'productos'
 			}],
 			where:{
-				tipoPago: {[Op.or]: tiposPagoFiltrados? [tiposPagoFiltrados] : tiposPagoVentasCompleto},
-				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosVentasCompleto}
+				tipoPago: {[Op.or]: tiposPagoFiltrados? [tiposPagoFiltrados] : tiposPagoCompleto},
+				facturada: facturadas? facturadas:{[Op.or]: [true,false]}
 			}
 		  })
 		.then((arreglo) => { console.log(arreglo); resolve(arreglo); })
@@ -373,6 +371,57 @@ const listarFullVentas = function (estadosFiltrados, tiposPagoFiltrados) {
 }
 
 //#endregion
+
+//#region COMPRAS
+const buscarCompraId = function (compraId){
+	return new Promise((resolve, reject) => {
+		Compra.findOne({
+			include : {all: true},
+			where: {id:compraId}
+		})
+		.then((compra) => { console.log(compra); resolve(compra); })
+		.catch((error) => { console.log(error); reject(error); });
+	})
+}
+
+const buscarFullCompraId = function (compraId) {
+	return new Promise((resolve, reject) => {
+		Compra.findOne({
+			attributes: attributesCompra,
+			include:[{
+				attributes: attributesProducto,
+				model: Producto,
+				as: 'productos'
+			}],
+			where:{ 
+				id: compraId
+			}
+		  })
+		.then((compra) => { resolve(compra); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+const listarFullCompras = function (tiposPagoFiltrados) {
+	return new Promise((resolve, reject) => {
+		Compra.findAll({
+			attributes: attributesCompra,
+			include:[{
+			  attributes: attributesProducto,
+				model: Producto,
+				as: 'productos'
+			}],
+			where:{ 
+				tipoPago: {[Op.or]: tiposPagoFiltrados? [tiposPagoFiltrados] : tiposPagoCompleto}
+			}
+		})
+		.then((compra) => { resolve(compra); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+//#endregion
+
 
 module.exports = {
 //CLIENTES
@@ -405,4 +454,8 @@ module.exports = {
 	buscarVentaId,
 	buscarFullVentaId,
 	listarFullVentas,
+//COMPRAS
+	buscarCompraId,
+	buscarFullCompraId,
+	listarFullCompras
 }
