@@ -26,16 +26,7 @@ router.post('/', async function(req, res, next) {
             const producto = await Producto.create(attributesProducto);
             await producto.addProveedores(proveedores);
             await producto.addMarcas(marcas);
-            Producto.findOne({
-              include: [{ 
-                model : Proveedor,
-                as : 'proveedores'
-              }, { 
-                model : Marca,
-                as : 'marcas'
-              }],
-              where:{id : producto.id}
-            })
+            funciones.buscarFullProductoId(producto.id)
             .then((producto)=>{res.json({status:'ok', producto});})
             .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
           } catch (error) {

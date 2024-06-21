@@ -27,10 +27,12 @@ var Venta = require('./modelos/Venta')(sequelize);
 
 //MUCHOS PROD <-> MUCHOS ARREGLOS
 Producto.belongsToMany(Arreglo, {
-   through: ProductoArreglo, foreignKey: 'productoId', sourceKey: 'id'
+   through: ProductoArreglo, foreignKey: 'productoId', sourceKey: 'id',
+   as:'arreglos'
 });
 Arreglo.belongsToMany(Producto, {
-  through: ProductoArreglo, foreignKey: 'arregloId', sourceKey: 'id' 
+  through: ProductoArreglo, foreignKey: 'arregloId', sourceKey: 'id',
+  as:'productos'
 });
 
 //MUCHOS PROD <-> MUCHAS MARCA

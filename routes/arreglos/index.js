@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 var funciones = require('../funciones');
 
 var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, Arreglo, ProductoArreglo} = require('../../db/main');
@@ -13,18 +13,18 @@ const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anul
 /* POST NUEVO ARREGLO */
 router.post('/nuevo', async function(req, res, next) {
   const attributesArreglo = req.body;
-  const {bicicletaId, repuestos} = req.body;
+  const {bicicletaId, repuestos} = attributesArreglo;
   funciones.buscarBicicletaId(bicicletaId)
   .then(async (bicicleta)=>{
     if(bicicleta != null){
       funciones.buscarProductosIds(repuestos)
       .then(async (repuestosLista)=>{
         if(repuestosLista.length === repuestos.length){
-          const arreglo = await Arreglo.build({...attributesArreglo, bicicletaId});
-          //arreglo.setBicicleta(bicicletaId);
+          const arreglo = await Arreglo.create({...attributesArreglo, bicicletaId});
           await arreglo.addProductos(repuestos);
-          await arreglo.save();          
-          res.json({status:'ok', arreglo});          
+          funciones.buscarFullArregloId(arreglo.id)
+          .then((arreglo)=>{res.json({status:'ok', arreglo});})
+          .catch((error) =>{ console.log(error); res.json({status:'error', error}); });   
         }else{
           res.json({status:'error', "error":"Repuestos no encontrados"});
         }
@@ -42,31 +42,12 @@ router.post('/nuevo', async function(req, res, next) {
 /* GET LISTADO ARREGLOS */
 router.get("/listar", function(req, res, next){
   const {estadosFiltrados} = req.body;
-  Arreglo.findAll({
-    attributes: attributesArreglo,
-    include:[{
-        model: Bicicleta,
-        include: { 
-          model: Cliente 
-        },
-        as: 'bicicleta'
-    },
-    {
-      model: Producto,
-    }
-    ],
-    where:{ 
-        estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto}
-    }
-  })
+  funciones.buscarFullArreglos(estadosFiltrados)
   .then((arreglos)=>{
-    res.json({
-      status:'ok',
-      arreglos
-    });
+    res.json({ status:'ok',arreglos });
   })
-  .catch((error) => {
-    console.log(error);
+  .catch((error) => { 
+    console.log(error); 
     res.json({status:'error', error})
   })
 });
@@ -106,16 +87,41 @@ router.get('/buscarBici', function(req, res, next){
 /* ACTUALIZAR UN ARREGLOS */
 router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
-  const attributesArreglo = req.body;  
-  Arreglo.update(
-    attributesArreglo,
-    { where: {id} }
-  )
+  const attributesArreglo = req.body;
+  const {bicicletaId, repuestos} = attributesArreglo;
+  funciones.buscarArregloId(id)
   .then((arreglo)=>{
-    res.json({
-      status:'ok',
-      arreglo
-    });
+    if(arreglo === null){
+      res.json({status:'error', 'error': 'Arreglo no encontrado'});
+    }else{
+      funciones.buscarBicicletaId(bicicletaId)
+      .then(async (bicicleta)=>{
+        if(bicicleta != null){
+          funciones.buscarProductosIds(repuestos)
+          .then(async (repuestosLista)=>{
+            if(repuestosLista.length === repuestos.length){
+              try {
+                await arreglo.set(attributesArreglo);
+                await arreglo.setProductos(repuestos);
+                funciones.buscarFullArregloId(id)
+                .then((arreglo)=>{res.json({status:'ok', arreglo});})
+                .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
+              } catch (error) {
+                console.log(error); res.json({status:'error', error});
+              }
+            }else{
+              res.json({status:'error', "error":"Repuestos no encontrados"});
+            }
+          })
+        }else{
+          res.json({status:'error', "error":"Bicicleta no encontrada"});
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        res.json({status:'error', error})
+      });
+    }
   })
   .catch((error) => {
     console.log(error);

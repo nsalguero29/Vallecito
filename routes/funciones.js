@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta } = require('../db/main');
 
-var { attributesCliente, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor, attributesVenta } = require('./attributes.json');
+var { attributesCliente, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');
 const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
 
 //#region CLIENTE
@@ -48,13 +48,75 @@ const buscarClientesDocumento = function (documento) {
 //#endregion
 
 //#region ARREGLOS
+const buscarFullArregloId = function (arregloId) {
+	return new Promise((resolve, reject) => {
+		Arreglo.findOne({
+			attributes: attributesArreglo,
+			include: [{
+				attributes: attributesProducto,
+				model: Producto,
+				as: 'productos'
+			},{
+				attributes: attributesBicicleta,
+				model: Bicicleta,
+				include: {
+					attributes: attributesCliente,
+					model: Cliente,
+					as:'cliente'
+				},
+				as: 'bicicleta'	
+			}],
+			where: { id: arregloId }
+		})
+			.then((arreglo) => { resolve(arreglo); })
+			.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+const buscarFullArreglos = function (estadosFiltrados) {
+	return new Promise((resolve, reject) => {
+		Arreglo.findAll({
+			attributes: attributesArreglo,
+			include: [{
+				attributes: attributesProducto,
+				model: Producto,
+				as: 'productos'
+			},{
+				attributes: attributesBicicleta,
+				model: Bicicleta,
+				include: {
+					attributes: attributesCliente,
+					model: Cliente,
+					as:'cliente'
+				},
+				as: 'bicicleta'	
+			}],
+			where: {
+				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto} 
+			}
+		})
+		.then((arreglosLista) => { resolve(arreglosLista); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
 const buscarArreglosIds = function (arreglos) {
 	return new Promise((resolve, reject) => {
 		Arreglo.findAll({
 			where: { id: { [Op.in]: arreglos } }
 		})
-			.then((arreglosLista) => { resolve(arreglosLista); })
-			.catch((error) => { console.log(error); reject(error) });
+		.then((arreglosLista) => { resolve(arreglosLista); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+const buscarArregloId = function (arregloId) {
+	return new Promise((resolve, reject) => {
+		Arreglo.findOne({
+			where: { id: arregloId  }
+		})
+		.then((arreglo) => { resolve(arreglo); })
+		.catch((error) => { console.log(error); reject(error) });
 	})
 }
 //#endregion
@@ -197,18 +259,27 @@ const buscarBicicletaId = function (bicicletaId) {
 //#endregion
 
 module.exports = {
+//CLIENTES
 	buscarClienteDocumento,
+	buscarClientesDocumento,
 	buscarClienteId,
+//BICICLETAS
+	buscarBicicletaId,
+//ARREGLOS
+	buscarFullArregloId,
+	buscarFullArreglos,
 	buscarArreglosIds,
+	buscarArregloId,
+//PRODUCTOS
 	buscarProductoId,
 	buscarProductosIds,
 	buscarFullProductoId,
 	buscarFullProductoNombre,
+//MARCAS
 	buscarMarcaId,
 	buscarMarcasIds,
+//PROVEEDORES
 	buscarProveedorId,
-	buscarBicicletaId,
 	buscarProveedoresIds,
 	buscarProveedores,
-	buscarClientesDocumento
 }
