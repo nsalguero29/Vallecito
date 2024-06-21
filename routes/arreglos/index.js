@@ -1,13 +1,10 @@
 var express = require('express');
 var router = express.Router();
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 var funciones = require('../funciones');
 
-var {Arreglo, Bicicleta, Cliente, Marca, Producto, ProductoMarca, Proveedor, ProductoProveedor, Arreglo, ProductoArreglo} = require('../../db/main');
+var {Arreglo, Bicicleta, Cliente, Producto, Arreglo} = require('../../db/main');
 
-var { attributesArreglo} = require('../attributes.json');
-
-const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
 
 /* ARREGLOS */
 /* POST NUEVO ARREGLO */

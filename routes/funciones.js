@@ -1,8 +1,10 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta } = require('../db/main');
 
 var { attributesCliente, attributesBicicleta, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');
-const estadosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
+const estadosArreglosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
+const estadosVentasCompleto = ['creado', 'pagado', 'anulado'];
+const tiposPagoVentasCompleto = ['efectivo', 'transferencia', 'debito', 'credito'];
 
 //#region CLIENTE
 const buscarClienteId = function (clienteId) {
@@ -92,7 +94,7 @@ const buscarFullArreglos = function (estadosFiltrados) {
 				as: 'bicicleta'	
 			}],
 			where: {
-				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosCompleto} 
+				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosArreglosCompleto} 
 			}
 		})
 		.then((arreglosLista) => { resolve(arreglosLista); })
@@ -180,6 +182,16 @@ const buscarFullProductoNombre = function (producto) {
 		  .catch((error) =>{ reject("Error al buscar productos"); });
 	})
 }
+
+const listarProductos = function () {
+	return new Promise((resolve, reject) => {
+		Producto.findAll({
+			attributes: ["id", "producto"]
+		})
+		.then((productos)=>{ resolve(productos); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
 //#endregion
 
 //#region MARCAS
@@ -200,6 +212,16 @@ const buscarMarcasIds = function (marcas) {
 			where: { id: { [Op.in]: marcas } }
 		})
 		.then((marcasLista) => { resolve(marcasLista); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+const listarMarcas = function () {
+	return new Promise((resolve, reject) => {
+		Marca.findAll({
+			attributes: ["id", "marca"]
+		})
+		.then((marcas)=>{ resolve(marcas); })
 		.catch((error) => { console.log(error); reject(error) });
 	})
 }
@@ -243,6 +265,16 @@ const buscarProveedoresIds = function (proveedores){
 			.catch((error) => { console.log(error); reject(error) });
 	})
 } 
+
+const listarProveedores = function () {
+	return new Promise((resolve, reject) => {
+		Proveedor.findAll({
+			attributes: ["id", "proveedor"]
+		})
+		.then((proveedores)=>{ resolve(proveedores); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
 //#endregion
 
 //#region BICICLETAS
@@ -256,6 +288,90 @@ const buscarBicicletaId = function (bicicletaId) {
 			.catch((error) => { console.log(error); reject(error) })
 	})
 }
+//#endregion
+
+//#region VENTAS
+
+const buscarVentaId = function (ventaId){
+	return new Promise((resolve, reject) => {
+		Venta.findOne({
+			include : {all: true},
+			where: {id:ventaId}
+		})
+		.then((venta) => { console.log(venta); resolve(venta); })
+		.catch((error) => { console.log(error); reject(error); });
+	})
+}
+
+const buscarFullVentaId = function (ventaId, estadosFiltrados) {
+	return new Promise((resolve, reject) => {
+		Venta.findOne({
+			attributes: attributesVenta,
+			include:[{
+				model: Cliente
+			},
+			{
+			  model: Arreglo,
+			  include: [{ 
+				  model: Producto,
+					as: 'productos'
+				},
+				{ 
+				  model: Bicicleta,
+					as:'bicicleta'
+				}]
+			},
+			{
+			  model: Producto,
+				as: 'productos'
+			}],
+			where:{ 
+				id: ventaId,
+				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosVentasCompleto}
+			}
+		  })
+		.then((venta) => { console.log(venta); resolve(venta); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+const listarFullVentas = function (estadosFiltrados, tiposPagoFiltrados) {
+	return new Promise((resolve, reject) => {
+		Venta.findAll({
+			attributes: attributesVenta,
+			include:[{
+				attributes: attributesCliente,
+				model: Cliente
+			},
+			{
+				attributes: attributesArreglo,
+			  model: Arreglo,
+			  include: [{ 
+					attributes: attributesProducto,
+				  model: Producto,
+					as: 'productos'
+				},
+				{ 
+					attributes: attributesBicicleta,
+				  model: Bicicleta,
+					as:'bicicleta'
+				}]
+			},
+			{
+				attributes: attributesProducto,
+			  model: Producto,
+				as: 'productos'
+			}],
+			where:{
+				tipoPago: {[Op.or]: tiposPagoFiltrados? [tiposPagoFiltrados] : tiposPagoVentasCompleto},
+				estado: {[Op.or]: estadosFiltrados? [estadosFiltrados] : estadosVentasCompleto}
+			}
+		  })
+		.then((arreglo) => { console.log(arreglo); resolve(arreglo); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
 //#endregion
 
 module.exports = {
@@ -275,11 +391,18 @@ module.exports = {
 	buscarProductosIds,
 	buscarFullProductoId,
 	buscarFullProductoNombre,
+	listarProductos,
 //MARCAS
 	buscarMarcaId,
 	buscarMarcasIds,
+	listarMarcas,
 //PROVEEDORES
 	buscarProveedorId,
 	buscarProveedoresIds,
 	buscarProveedores,
+	listarProveedores,
+//VENTAS
+	buscarVentaId,
+	buscarFullVentaId,
+	listarFullVentas,
 }

@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
 var { Cliente, Bicicleta, Arreglo, Venta } = require('../../db/main');
 var funciones = require('../funciones');
 
@@ -30,7 +29,8 @@ router.get("/listar", function(req, res, next){
       attributes: attributesBicicleta,
       model: Bicicleta,
       include: {
-        model: Arreglo
+        model: Arreglo,
+        as: 'arreglos'
       },
       as: 'bicicletas'
     },{

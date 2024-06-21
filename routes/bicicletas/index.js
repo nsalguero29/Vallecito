@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-const { Op, where } = require('sequelize');
 var funciones = require('../funciones');
 
 var { Cliente, Bicicleta, Arreglo } = require('../../db/main');

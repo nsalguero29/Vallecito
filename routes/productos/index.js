@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
-const { Op } = require("sequelize");
 var funciones = require('../funciones');
 
-var { Producto, Marca, Proveedor } = require('../../db/main');
+var { Producto} = require('../../db/main');
 
 var {attributesProducto} = require('../attributes.json');
 
