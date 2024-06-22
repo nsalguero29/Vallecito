@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
+const { Op } = require("sequelize");
 var { Cliente, Bicicleta, Arreglo, Venta } = require('../../db/main');
 var funciones = require('../funciones');
 
 var { attributesCliente, attributesBicicleta } = require('../attributes.json');
+const { where } = require('sequelize');
 
 /* POST NUEVO CLIENTE */
 router.post('/nuevo', function(req, res, next) {
@@ -23,7 +25,8 @@ router.post('/nuevo', function(req, res, next) {
 
 /* GET LISTADO CLIENTES */
 router.get("/listar", function(req, res, next){
-  Cliente.findAll({
+  const { limit, offset, busqueda} = req.query;
+  Cliente.findAndCountAll({
     attributes: attributesCliente,
     include:[{
       attributes: attributesBicicleta,
@@ -36,12 +39,16 @@ router.get("/listar", function(req, res, next){
     },{
       model: Venta,
       as: 'ventas'
-    }]
+    }],
+    where:{documento: {[Op.like]: busqueda + '%' }},
+    offset,
+    limit
   })
   .then((clientes)=>{
     res.json({
       status:'ok',
-      clientes
+      clientes: clientes.rows,
+      total: clientes.count
     });
   })
   .catch((error) => {

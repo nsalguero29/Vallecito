@@ -1,4 +1,4 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta, Compra, DetalleCompra} = require('../db/main');
 
 var { attributesCliente, attributesBicicleta, attributesCompra, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');

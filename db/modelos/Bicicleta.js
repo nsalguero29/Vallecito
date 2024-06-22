@@ -13,6 +13,8 @@ function definir(sequelize){
       '27.5',
       '29'
     ], allowNull: true },
+    color: { type: DataTypes.STRING, allowNull: true },
+    cuadro: { type: DataTypes.STRING, allowNull: true },
     observacion: { type: DataTypes.STRING, allowNull: true },
   }, { sequelize, paranoid: true, modelName: 'bicicleta', tableName: 'bicicletas'});
   return Bicicleta;
