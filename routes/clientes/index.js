@@ -5,10 +5,9 @@ var { Cliente, Bicicleta, Arreglo, Venta } = require('../../db/main');
 var funciones = require('../funciones');
 
 var { attributesCliente, attributesBicicleta } = require('../attributes.json');
-const { where } = require('sequelize');
 
 /* POST NUEVO CLIENTE */
-router.post('/nuevo', function(req, res, next) {
+router.post('/', function(req, res, next) {
   const attributesCliente = req.body;
   Cliente.create(attributesCliente)
   .then((cliente)=>{

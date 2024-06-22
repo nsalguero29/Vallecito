@@ -25,9 +25,11 @@
         "marca"
     ],    
     "attributesProducto" : [
+        "uuid",
+        "codigoProveedor",
         "producto",
         "stock",
-        "precioVenta",
+        "precioLista",
         "observacion"
     ],    
     "attributesProveedor" : [

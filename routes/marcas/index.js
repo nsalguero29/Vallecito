@@ -7,7 +7,7 @@ var { attributesMarca, attributesProducto, attributesProveedor } = require('../a
 
 /* MARCAS */
 /* POST NUEVA MARCA */
-router.post('/nueva', function(req, res, next) {
+router.post('/', function(req, res, next) {
   const attributesMarca = req.body;
   Marca.create(attributesMarca)
   .then((marca)=>{
@@ -24,17 +24,23 @@ router.post('/nueva', function(req, res, next) {
 
 /* GET LISTADO MARCAS CON PRODUCTOS ASOCIADOS */
 router.get("/listar", function(req, res, next){
-  Marca.findAll({
+  const { limit, offset, busqueda} = req.query;
+  Marca.findAndCountAll({
     attributes: attributesMarca,
     include:[{
         model: Producto,
         through: { attributesProducto },
-    }]
+        as:'productos'
+    }],
+    where:{marca: {[Op.like]: busqueda + '%' }},
+    offset,
+    limit
   })
   .then((marcas)=>{
     res.json({
       status:'ok',
-      marcas
+      marcas: marcas.rows,
+      total: marcas.count
     });
   })
   .catch((error) => {
