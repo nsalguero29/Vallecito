@@ -24,24 +24,33 @@ router.post('/', function(req, res, next) {
 
 /* GET LISTADO MARCAS CON PRODUCTOS ASOCIADOS */
 router.get("/listar", function(req, res, next){
-  const { limit, offset, busqueda} = req.query;
-  Marca.findAndCountAll({
-    attributes: attributesMarca,
-    include:[{
-        model: Producto,
-        through: { attributesProducto },
-        as:'productos'
-    }],
+  const { limit, offset, busqueda } = req.query;
+  Marca.count({
     where:{marca: {[Op.like]: busqueda + '%' }},
-    offset,
-    limit
   })
-  .then((marcas)=>{
-    res.json({
-      status:'ok',
-      marcas: marcas.rows,
-      total: marcas.count
-    });
+  .then((count)=>{
+    Marca.findAll({
+      attributes: attributesMarca,
+      include:[{
+          model: Producto,
+          through: { attributesProducto },
+          as:'productos'
+      }],
+      where:{marca: {[Op.like]: busqueda + '%' }},
+      offset,
+      limit
+    })
+    .then((marcas)=>{
+      res.json({
+        status:'ok',
+        marcas: marcas,
+        total: count
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.json({status:'error', error})
+    })
   })
   .catch((error) => {
     console.log(error);

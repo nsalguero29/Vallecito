@@ -25,30 +25,39 @@ router.post('/', function(req, res, next) {
 /* GET LISTADO CLIENTES */
 router.get("/listar", function(req, res, next){
   const { limit, offset, busqueda} = req.query;
-  Cliente.findAndCountAll({
-    attributes: attributesCliente,
-    include:[{
-      attributes: attributesBicicleta,
-      model: Bicicleta,
-      include: {
-        model: Arreglo,
-        as: 'arreglos'
-      },
-      as: 'bicicletas'
-    },{
-      model: Venta,
-      as: 'ventas'
-    }],
+  Cliente.count({
     where:{documento: {[Op.like]: busqueda + '%' }},
-    offset,
-    limit
   })
-  .then((clientes)=>{
-    res.json({
-      status:'ok',
-      clientes: clientes.rows,
-      total: clientes.count
-    });
+  .then((count)=>{
+    Cliente.findAll({
+      attributes: attributesCliente,
+      include:[{
+        attributes: attributesBicicleta,
+        model: Bicicleta,
+        include: {
+          model: Arreglo,
+          as: 'arreglos'
+        },
+        as: 'bicicletas'
+      },{
+        model: Venta,
+        as: 'ventas'
+      }],
+      where:{documento: {[Op.like]: busqueda + '%' }},
+      offset,
+      limit
+    })
+    .then((clientes)=>{
+      res.json({
+        status:'ok',
+        clientes: clientes,
+        total: count
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.json({status:'error', error})
+    })
   })
   .catch((error) => {
     console.log(error);

@@ -25,28 +25,33 @@ router.post('/', function(req, res, next) {
 /* GET LISTADO PROVEEDORES CON PRODUCTOS ASOCIADOS */
 router.get("/listar", function(req, res, next){
   const { limit, offset, busqueda} = req.query;
-  Proveedor.findAndCountAll({
-    attributes: attributesProveedor,
-    include:[{
-        model: Producto,
-        through: { attributesProducto },
-        as:'productos',
-        include: [{
-          model: Marca,
-          as:'marcas',
-          through: { attributesMarca },
-        }]
-    }],
-    where:{proveedor: {[Op.like]: busqueda + '%' }},
-    offset,
-    limit
+  Proveedor.count({
+    where:{proveedor: {[Op.like]: busqueda + '%' }}
   })
-  .then((proveedores)=>{
-    res.json({
-      status:'ok',
-      proveedores: proveedores.rows,
-      total: proveedores.count
-    });
+  .then((count)=>{
+    Proveedor.findAll({
+      attributes: attributesProveedor,
+      include:[{
+          model: Producto,
+          through: { attributesProducto },
+          as:'productos',
+          include: [{
+            model: Marca,
+            as:'marcas',
+            through: { attributesMarca },
+          }]
+      }],
+      where:{proveedor: {[Op.like]: busqueda + '%' }},
+      offset,
+      limit
+    })
+    .then((proveedores)=>{
+      res.json({
+        status:'ok',
+        proveedores: proveedores,
+        total: count
+      });
+    })
   })
   .catch((error) => {
     console.log(error);
