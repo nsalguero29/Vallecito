@@ -22,13 +22,26 @@ router.post('/', function(req, res, next) {
   })
 });
 
+router.get('/listar', function(req, res, next){
+  Proveedor.findAll({
+    attributes: ["id", "proveedor"],    
+  })
+  .then((proveedores)=>{
+    res.json({status:'ok', proveedores});
+  })
+  .catch((error) => {
+    console.log(error);
+    res.json({status:'error', error})
+  })
+});
+
 /* GET LISTADO PROVEEDORES CON PRODUCTOS ASOCIADOS */
-router.get("/listar", function(req, res, next){
-  const { limit, offset, busqueda} = req.query;
+router.get("/buscar", function(req, res, next){
+  const { limit, offset, busqueda } = req.query;
   Proveedor.count({
     where:{proveedor: {[Op.like]: busqueda + '%' }}
   })
-  .then((count)=>{
+  .then((total)=>{
     Proveedor.findAll({
       attributes: attributesProveedor,
       include:[{
@@ -46,10 +59,11 @@ router.get("/listar", function(req, res, next){
       limit
     })
     .then((proveedores)=>{
+      console.log(proveedores);
       res.json({
         status:'ok',
-        proveedores: proveedores,
-        total: count
+        proveedores,
+        total
       });
     })
   })

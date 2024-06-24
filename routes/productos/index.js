@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const { Op } = require("sequelize");
 var funciones = require('../funciones');
 
 var { Producto} = require('../../db/main');
@@ -10,21 +11,21 @@ var {attributesProducto} = require('../attributes.json');
 /* POST NUEVO PRODUCTO */
 router.post('/', async function(req, res, next) {
   const attributesProducto = req.body;
-  const {marcas, proveedores} = attributesProducto; 
-  funciones.buscarProveedoresIds(proveedores)
+  const {marcaId, proveedorId} = attributesProducto;
+  funciones.buscarProveedoresIds(proveedorId)
   .then((listaProveedores)=>{
-    if(listaProveedores.length !== proveedores.length){
+    if(listaProveedores.length !== proveedorId.length){
       res.json({status:'error', "error" : "Proveedor no encontrado"});
     }else{
-      funciones.buscarMarcasIds(marcas)
+      funciones.buscarMarcasIds(marcaId)
       .then(async (listaMarcas)=>{
-        if(listaMarcas.length !== marcas.length){
+        if(listaMarcas.length !== marcaId.length){
           res.json({status:'error', "error" : "Marca no encontrada"});
         }else{
           try {
             const producto = await Producto.create(attributesProducto);
-            await producto.addProveedores(proveedores);
-            await producto.addMarcas(marcas);
+            await producto.addProveedores(proveedorId);
+            await producto.addMarcas(marcaId);
             funciones.buscarFullProductoId(producto.id)
             .then((producto)=>{res.json({status:'ok', producto});})
             .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
@@ -39,22 +40,43 @@ router.post('/', async function(req, res, next) {
   .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
 })
 
-/* GET LISTADO PRODUCTOS */
-router.get("/listar", function(req, res, next){
+router.get('/listar', function(req, res, next){
   Producto.findAll({
-    attributes: attributesProducto,
-    include: {all: true}
+    attributes: ["id", "producto"],
   })
   .then((productos)=>{
-    res.json({
-      status:'ok',
-      productos
-    });
+    res.json({status:'ok', productos});
   })
   .catch((error) => {
     console.log(error);
     res.json({status:'error', error})
   })
+});
+
+/* GET LISTADO PRODUCTOS */
+router.get("/buscar", function(req, res, next){
+  const { limit, offset, busqueda} = req.query;
+  Producto.count({
+    where:{producto: {[Op.like]: busqueda + '%' }}
+  })
+  .then((total)=>{
+    Producto.findAll({
+      attributes: attributesProducto,
+      include: {all: true},
+      where:{producto: {[Op.like]: busqueda + '%' }},
+      offset,
+      limit
+    })
+    .then((productos)=>{
+      res.json({
+        status:'ok',
+        productos,
+        total
+      });
+    })
+    .catch((error) => { console.log(error); res.json({status:'error', error }) });
+  })
+  .catch((error) => { console.log(error); res.json({status:'error', error}) });
 });
 
 /* ACTUALIZAR UN PRODUCTO */

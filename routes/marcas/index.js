@@ -22,8 +22,21 @@ router.post('/', function(req, res, next) {
   })
 });
 
+router.get('/listar', function(req, res, next){
+  Marca.findAll({
+    attributes: ["id", "marca"],    
+  })
+  .then((marcas)=>{
+    res.json({status:'ok', marcas});
+  })
+  .catch((error) => {
+    console.log(error);
+    res.json({status:'error', error})
+  })
+});
+
 /* GET LISTADO MARCAS CON PRODUCTOS ASOCIADOS */
-router.get("/listar", function(req, res, next){
+router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
   Marca.count({
     where:{marca: {[Op.like]: busqueda + '%' }},
