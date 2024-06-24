@@ -3,7 +3,7 @@ var router = express.Router();
 const { Op } = require("sequelize");
 var { Marca, Producto} = require('../../db/main');
 
-var { attributesMarca, attributesProducto, attributesProveedor } = require('../attributes.json');
+var { attributesMarca, attributesProducto } = require('../attributes.json');
 
 /* MARCAS */
 /* POST NUEVA MARCA */
@@ -39,7 +39,7 @@ router.get('/listar', function(req, res, next){
 router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
   Marca.count({
-    where:{marca: {[Op.like]: busqueda + '%' }},
+    where:{marca: {[Op.iLike]: busqueda + '%' }},
   })
   .then((count)=>{
     Marca.findAll({
@@ -49,7 +49,7 @@ router.get("/buscar", function(req, res, next){
           through: { attributesProducto },
           as:'productos'
       }],
-      where:{marca: {[Op.like]: busqueda + '%' }},
+      where:{marca: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })
@@ -117,7 +117,7 @@ router.get('/buscar', function(req, res, next){
     }],
     where:{ 
       marca: { 
-        [Op.like]: '%' + marca + '%'
+        [Op.iLike]: '%' + marca + '%'
       }
     }
   })

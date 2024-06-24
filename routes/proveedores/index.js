@@ -39,7 +39,7 @@ router.get('/listar', function(req, res, next){
 router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
   Proveedor.count({
-    where:{proveedor: {[Op.like]: busqueda + '%' }}
+    where:{proveedor: {[Op.iLike]: busqueda + '%' }}
   })
   .then((total)=>{
     Proveedor.findAll({
@@ -54,7 +54,7 @@ router.get("/buscar", function(req, res, next){
             through: { attributesMarca },
           }]
       }],
-      where:{proveedor: {[Op.like]: busqueda + '%' }},
+      where:{proveedor: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })
