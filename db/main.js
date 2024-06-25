@@ -33,20 +33,24 @@ Arreglo.belongsToMany(Producto, {
   through: ProductoArreglo, foreignKey: 'arregloId', as:'productos'
 });
 
-//MUCHOS PROD <-> MUCHAS MARCA
-Producto.belongsToMany(Marca, {
-  through: ProductoMarca, foreignKey: 'productoId', as:'marcas' 
+//1 PROD <-> 1 MARCA
+Producto.belongsTo(Marca, {
+  targetKey: 'id', foreignKey: 'marcaId', 
+  as:'marca'
 });
-Marca.belongsToMany(Producto, {
- through: ProductoMarca, foreignKey: 'marcaId', as:'productos'
+Marca.hasMany(Producto, {
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'marcaId', as:'productos'
 });
 
-//MUCHOS PROD <-> MUCHOS PROOVEDOR
-Producto.belongsToMany(Proveedor, {
-  through: ProductoProveedor, foreignKey: 'productoId', as: 'proveedores'
+//1 PROD <-> 1 PROOVEDOR
+Producto.belongsTo(Proveedor, {
+  targetKey: 'id', foreignKey: 'proveedorId',
+  as:'proveedor'
 });
-Proveedor.belongsToMany(Producto, {
- through: ProductoProveedor, foreignKey: 'proveedorId', as: 'productos'
+Proveedor.hasMany(Producto, {
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'proveedorId', as:'productos'
 });
 
 //1 COMPRA -> MUCHOS DETALLES

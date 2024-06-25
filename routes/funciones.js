@@ -150,10 +150,10 @@ const buscarFullProductoId = function (productoId) {
 		Producto.findOne({
 			include: [{ 
 			  model : Proveedor,
-			  as : 'proveedores'
+			  as : 'proveedor'
 			}, { 
 			  model : Marca,
-			  as : 'marcas'
+			  as : 'marca'
 			}],
 			where:{id : productoId}
 		  })

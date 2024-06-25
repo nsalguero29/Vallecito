@@ -24,9 +24,9 @@ router.post('/', function(req, res, next) {
 
 /* GET LISTADO CLIENTES */
 router.get("/listar", function(req, res, next){
-  const { limit, offset, busqueda} = req.query;
+  const { limit, offset, busqueda } = req.query;
   Cliente.count({
-    where:{documento: {[Op.like]: busqueda + '%' }},
+    where:{documento: {[Op.iLike]: busqueda + '%' }},
   })
   .then((count)=>{
     Cliente.findAll({
@@ -43,7 +43,7 @@ router.get("/listar", function(req, res, next){
         model: Venta,
         as: 'ventas'
       }],
-      where:{documento: {[Op.like]: busqueda + '%' }},
+      where:{documento: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })

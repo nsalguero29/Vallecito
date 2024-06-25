@@ -44,11 +44,11 @@ router.get("/buscar", function(req, res, next){
   .then((count)=>{
     Marca.findAll({
       attributes: attributesMarca,
-      include:[{
-          model: Producto,
-          through: { attributesProducto },
-          as:'productos'
-      }],
+      include:{
+        model: Producto,
+        attributes: attributesProducto,
+        as:'productos'
+      },
       where:{marca: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit

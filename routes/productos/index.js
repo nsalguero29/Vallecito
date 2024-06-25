@@ -12,30 +12,20 @@ var {attributesProducto} = require('../attributes.json');
 router.post('/', async function(req, res, next) {
   const attributesProducto = req.body;
   const {marcaId, proveedorId} = attributesProducto;
-  funciones.buscarProveedoresIds(proveedorId)
-  .then((listaProveedores)=>{
-    if(listaProveedores.length !== proveedorId.length){
-      res.json({status:'error', "error" : "Proveedor no encontrado"});
-    }else{
-      funciones.buscarMarcasIds(marcaId)
-      .then(async (listaMarcas)=>{
-        if(listaMarcas.length !== marcaId.length){
-          res.json({status:'error', "error" : "Marca no encontrada"});
-        }else{
-          try {
-            const producto = await Producto.create(attributesProducto);
-            await producto.addProveedores(proveedorId);
-            await producto.addMarcas(marcaId);
-            funciones.buscarFullProductoId(producto.id)
-            .then((producto)=>{res.json({status:'ok', producto});})
-            .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
-          } catch (error) {
-            console.log(error); res.json({status:'error', error});
-          }
-        }
-      })
-      .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
-    }
+  funciones.buscarProveedorId(proveedorId)
+  .then(()=>{
+    funciones.buscarMarcaId(marcaId)
+    .then(async ()=>{      
+      try {
+        const producto = await Producto.create(attributesProducto);
+        funciones.buscarFullProductoId(producto.id)
+        .then((producto)=>{res.json({status:'ok', producto});})
+        .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
+      } catch (error) {
+        console.log(error); res.json({status:'error', error});
+      }
+    })
+    .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
   })
   .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
 })

@@ -45,21 +45,20 @@ router.get("/buscar", function(req, res, next){
     Proveedor.findAll({
       attributes: attributesProveedor,
       include:[{
-          model: Producto,
-          through: { attributesProducto },
+          model:Producto,
+          attributes: attributesProducto,
           as:'productos',
-          include: [{
-            model: Marca,
-            as:'marcas',
-            through: { attributesMarca },
-          }]
+          include:{
+            model:Marca,
+            attributes: attributesMarca,
+            as: 'marca'
+          }
       }],
       where:{proveedor: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })
     .then((proveedores)=>{
-      console.log(proveedores);
       res.json({
         status:'ok',
         proveedores,
@@ -100,33 +99,6 @@ router.delete('/eliminar', function(req, res, next) {
   .then(()=>{
     res.json({
       status:'ok'
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })
-});
-
-/* BUSCAR UN PROVEEDORES POR NOMBRE(PROVEEDOR) */
-router.get('/buscar', function(req, res, next){
-  const {proveedor} = req.query;
-  Proveedor.findAll({
-    attributes: attributesProveedor,
-    include:[{
-      model: Producto,
-      attributes: attributesProducto
-    }],
-    where:{ 
-      proveedor: { 
-        [Op.like]: '%' + proveedor + '%'
-      }
-    }
-  })
-  .then((proveedores)=>{
-    res.json({
-      status:'ok',
-      proveedores
     });
   })
   .catch((error) => {
