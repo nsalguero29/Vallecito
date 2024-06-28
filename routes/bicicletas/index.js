@@ -7,21 +7,17 @@ var { Cliente, Bicicleta, Arreglo } = require('../../db/main');
 var { attributesCliente, attributesBicicleta } = require('../attributes.json');
 
 /* POST NUEVO BICICLETA */
-router.post('/nueva', function(req, res, next) {
+router.post('/', function(req, res, next) {
   const attributesBicicleta = req.body;
   const {clienteId} = attributesBicicleta;
   funciones.buscarClienteId(clienteId)
   .then(()=>{ 
-    Bicicleta.create({
-      ...attributesBicicleta,
-      clienteId
-    })
-    .then(()=>{
-      Cliente.findOne({
-        include: {all: true},
-        where: {id : clienteId}
-      })
-      .then((cliente)=>{ res.json({status:'ok', cliente}); })
+    Bicicleta.create(attributesBicicleta)
+    .then((bicicleta)=>{
+      res.json({
+        status:'ok', 
+        bicicleta
+      });
     })
     .catch((error) => { console.log(error); res.json({status:'error', error}) })
   })
@@ -29,25 +25,33 @@ router.post('/nueva', function(req, res, next) {
 });
 
 /* GET LISTADO BICICLETA */
-router.get("/listar", function(req, res, next){
-  Bicicleta.findAll({
-    attributes: attributesBicicleta,
-    include:[{
-      model: Cliente,
-      attributes: attributesCliente
-    },{
-      model: Arreglo
-    }]
-  })
-  .then((bicicletas)=>{
-    res.json({
-      status:'ok',
-      bicicletas
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
+router.get("/buscar", function(req, res, next){
+  const { limit, offset, busqueda } = req.query;
+  Bicicleta.count({})
+  .then((count) => {
+    Bicicleta.findAll({
+      attributes: attributesBicicleta,
+      include:[{
+        model: Cliente,
+        attributes: attributesCliente
+      },{
+        model: Arreglo,
+        as: 'arreglos'
+      }],
+      offset,
+      limit
+    })
+    .then((bicicletas)=>{
+      res.json({
+        status:'ok',
+        bicicletas,
+        total: count
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.json({status:'error', error})
+    })
   })
 });
 
@@ -78,31 +82,6 @@ router.delete('/eliminar', function(req, res, next) {
   .then(()=>{
     res.json({
       status:'ok'
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })
-});
-
-/* BUSCAR BICICLETAS POR CLIENTE */
-router.get('/buscarCliente', function(req, res, next){
-  const {clienteId} = req.query;
-  Bicicleta.findAll({
-    attributes: attributesBicicleta,
-    include:[{
-      model: Cliente,
-      attributes: attributesCliente
-    },{
-      model: Arreglo
-    }],
-    where:{ clienteId }
-  })
-  .then((bicicletas)=>{
-    res.json({
-      status:'ok',
-      bicicletas
     });
   })
   .catch((error) => {

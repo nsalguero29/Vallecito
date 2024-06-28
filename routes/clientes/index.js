@@ -23,7 +23,7 @@ router.post('/', function(req, res, next) {
 });
 
 /* GET LISTADO CLIENTES */
-router.get("/listar", function(req, res, next){
+router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
   Cliente.count({
     where:{documento: {[Op.iLike]: busqueda + '%' }},
@@ -50,7 +50,7 @@ router.get("/listar", function(req, res, next){
     .then((clientes)=>{
       res.json({
         status:'ok',
-        clientes: clientes,
+        clientes,
         total: count
       });
     })
@@ -92,22 +92,6 @@ router.delete('/eliminar', function(req, res, next) {
   .then(()=>{
     res.json({
       status:'ok'
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })
-});
-
-/* BUSCAR CLIENTES POR DOCUMENTO */
-router.get('/buscar', function(req, res, next){
-  const {documento} = req.query;
-  funciones.buscarClientesDocumento(documento)
-  .then((clientes)=>{
-    res.json({
-      status:'ok',
-      clientes
     });
   })
   .catch((error) => {

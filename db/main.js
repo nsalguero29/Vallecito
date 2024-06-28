@@ -20,6 +20,7 @@ var ProductoMarca = require('./modelos/ProductoMarca')(sequelize);
 var ProductoProveedor = require('./modelos/ProductoProveedor')(sequelize);
 var ProductoVenta = require('./modelos/ProductoVenta')(sequelize);
 var Proveedor = require('./modelos/Proveedor')(sequelize);
+var TiposProducto = require('./modelos/TiposProducto')(sequelize);
 var Usuario = require('./modelos/Usuario')(sequelize);
 var Venta = require('./modelos/Venta')(sequelize);
 
@@ -52,22 +53,6 @@ Proveedor.hasMany(Producto, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   foreignKey: 'proveedorId', as:'productos'
 });
-
-//1 COMPRA -> MUCHOS DETALLES
-/*Compra.hasMany(DetalleCompra, {
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'compraId', sourceKey: 'id' 
-});
-DetalleCompra.belongsTo(Compra,{
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'compraId', sourceKey: 'id',  
-  as: 'compra'
-});
-DetalleCompra.belongsTo(Producto, {
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'productoId', sourceKey: 'id',  
-  as: 'producto'
-});*/
 
 //MUCHAS COMPRAS <-> MUCHOS PROOD
 Compra.belongsToMany(Producto, {
@@ -132,6 +117,13 @@ Producto.belongsToMany(Venta, {
  through: ProductoVenta, foreignKey: 'ventaId', as: 'ventas'
 });
 
+TiposProducto.belongsToMany(Producto,{
+  through: 'productoTipos', foreignKey: 'productoId', as: 'productos'
+});
+Producto.belongsToMany(TiposProducto, {
+  through: 'productoTipos', foreignKey: 'productoTiposId', as: 'tiposProducto'
+ });
+
 
 function iniciarDB(tipo = 'sync'){
   return new Promise((resolve, reject) => {
@@ -162,6 +154,7 @@ module.exports = {
   ProductoProveedor,
   ProductoVenta,
   Proveedor,
+  TiposProducto,
   Usuario,
   Venta
 };

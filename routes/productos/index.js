@@ -11,19 +11,25 @@ var {attributesProducto} = require('../attributes.json');
 /* POST NUEVO PRODUCTO */
 router.post('/', async function(req, res, next) {
   const attributesProducto = req.body;
-  const {marcaId, proveedorId} = attributesProducto;
+  const {marcaId, proveedorId, tiposProductoIds} = attributesProducto;
   funciones.buscarProveedorId(proveedorId)
   .then(()=>{
     funciones.buscarMarcaId(marcaId)
-    .then(async ()=>{      
-      try {
-        const producto = await Producto.create(attributesProducto);
-        funciones.buscarFullProductoId(producto.id)
-        .then((producto)=>{res.json({status:'ok', producto});})
-        .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
-      } catch (error) {
-        console.log(error); res.json({status:'error', error});
-      }
+    .then(()=>{
+      funciones.buscarTiposProductoIds(tiposProductoIds)
+      .then(async ()=>{      
+        try {
+          const producto = await Producto.create(attributesProducto);
+          await producto.setTiposProducto(tiposProductoIds);          
+          producto.save();
+          funciones.buscarFullProductoId(producto.id)
+          .then((producto)=>{res.json({status:'ok', producto});})
+          .catch((error) =>{ console.log(error); res.json({status:'error', error}); });            
+        } catch (error) {
+          console.log(error); res.json({status:'error', error});
+        }
+      })
+      .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
     })
     .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
   })
@@ -76,34 +82,29 @@ router.get("/buscar", function(req, res, next){
 router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
   const attributesProducto = req.body;
-  const {marcas, proveedores} = attributesProducto;
+  const {marcaId, proveedorId, tiposProductoIds} = attributesProducto;
   funciones.buscarProductoId(id)
   .then((producto)=>{
-    funciones.buscarProveedoresIds(proveedores)
-    .then((listaProveedores)=>{
-      if(listaProveedores.length !== proveedores.length){
-        res.json({status:'error', "error" : "Proveedor no encontrado"});
-      }else{
-        funciones.buscarMarcasIds(marcas)
-        .then(async (listaMarcas)=>{
-          if(listaMarcas.length !== marcas.length){
-            res.json({status:'error', "error" : "Marca no encontrada"});
-          }else{
-            try {
-              await producto.set(attributesProducto);
-              await producto.setProveedores(proveedores);
-              await producto.setMarcas(marcas);
-              producto.save();
-              funciones.buscarFullProductoId (producto.id)
-              .then((producto)=>{res.json({status:'ok', producto});})
-              .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
-            } catch (error) {
-              console.log(error); res.json({status:'error', error});
-            }
-          }
+    funciones.buscarProveedorId(proveedorId)
+    .then(()=>{      
+        funciones.buscarMarcaId(marcaId)
+        .then(()=>{ 
+          funciones.buscarTiposProductoIds(tiposProductoIds)
+          .then(async ()=>{          
+              try {
+                await producto.set(attributesProducto);
+                await producto.setTiposProducto(tiposProductoIds);
+                producto.save();
+                funciones.buscarFullProductoId (producto.id)
+                .then((producto)=>{res.json({status:'ok', producto});})
+                .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
+              } catch (error) {
+                console.log(error); res.json({status:'error', error});
+              }           
+          })
+          .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
         })
         .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
-      }
     })
     .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
   })
@@ -118,19 +119,6 @@ router.delete('/eliminar', function(req, res, next) {
     res.json({
       status:'ok'
     });
-  })
-  .catch((error) => {
-    console.log(error);
-    res.json({status:'error', error})
-  })
-});
-
-/* BUSCAR PRODUCTOS POR NOMBRE(PRODUCTO) */
-router.get('/buscar', function(req, res, next){
-  const {producto} = req.query;
-  funciones.buscarFullProductoNombre(producto)
-  .then((productos)=>{
-      res.json({status:'ok', productos});
   })
   .catch((error) => {
     console.log(error);

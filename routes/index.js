@@ -8,6 +8,7 @@ var comprasRouter = require('./compras');
 var marcasRouter = require('./marcas');
 var productosRouter = require('./productos');
 var proveedoresRouter = require('./proveedores');
+var tiposProductos = require('./tiposProductos');
 var ventasRouter = require('./ventas');
 
 
@@ -23,6 +24,7 @@ router.use('/compras', comprasRouter);
 router.use('/marcas', marcasRouter);
 router.use('/productos', productosRouter);
 router.use('/proveedores', proveedoresRouter);
+router.use('/tiposProductos', tiposProductos);
 router.use('/ventas', ventasRouter);
 
 module.exports = router;

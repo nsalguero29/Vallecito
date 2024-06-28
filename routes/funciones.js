@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
-var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta, Compra, DetalleCompra} = require('../db/main');
+var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta, Compra,
+	TiposProducto, DetalleCompra} = require('../db/main');
 
 var { attributesCliente, attributesBicicleta, attributesCompra, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');
 const estadosArreglosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
@@ -154,11 +155,14 @@ const buscarFullProductoId = function (productoId) {
 			}, { 
 			  model : Marca,
 			  as : 'marca'
+			}, { 
+				model : TiposProducto,
+				as : 'tiposProducto'
 			}],
 			where:{id : productoId}
 		  })
 		  .then((producto)=>{ resolve(producto); })
-		  .catch((error) =>{ reject("Producto no encontrado"); });
+		  .catch((error) =>{ console.log(error); reject("Producto no encontrado"); });
 	})
 }
 
@@ -171,6 +175,9 @@ const buscarFullProductoNombre = function (producto) {
 			}, { 
 			  model : Marca,
 			  as : 'marcas'
+			}, { 
+				model : TiposProducto,
+				as : 'tipo'
 			}],
 			where:{ 
 				producto: { 
@@ -227,6 +234,39 @@ const listarMarcas = function () {
 }
 //#endregion
 
+//#region TIPOS PRODUCTOS
+const buscarTipoProductoId = function (tipoProductoId) {
+	return new Promise((resolve, reject) => {
+		TiposProducto.findOne({ where: { id: tipoProductoId } })
+			.then((tipoProducto) => {
+				if (tipoProducto != null) resolve(tipoProducto);
+				else reject("Tipo Producto no encontrado");
+			})
+			.catch((error) => { console.log(error); reject(error) })
+	})
+}
+
+const buscarTiposProductoIds = function (tiposProductoIds) {
+	return new Promise((resolve, reject) => {
+		TiposProducto.findAll({
+			where: { id: { [Op.in]: tiposProductoIds } }
+		})
+		.then((tiposProductoLista) => { resolve(tiposProductoLista); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+
+const listarTiposProducto = function () {
+	return new Promise((resolve, reject) => {
+		TiposProducto.findAll({
+			attributes: ["id", "tipoProducto"]
+		})
+		.then((tiposProducto)=>{ resolve(tiposProducto); })
+		.catch((error) => { console.log(error); reject(error) });
+	})
+}
+//#endregion
+
 //#region PROVEEDORES
 const buscarProveedorId = function (proveedorId) {
 	return new Promise((resolve, reject) => {
@@ -261,7 +301,10 @@ const buscarProveedoresIds = function (proveedores){
 		Proveedor.findAll({
 			where: { id: { [Op.in]: proveedores } }
 		})
-			.then((proveedoresLista) => { resolve(proveedoresLista); })
+			.then((proveedoresLista) => { 
+				if(proveedoresLista.lenght !== 0)resolve(proveedoresLista); 
+				else reject ("Proveedores no encontrados");
+			})
 			.catch((error) => { console.log(error); reject(error) });
 	})
 } 
@@ -445,6 +488,10 @@ module.exports = {
 	buscarMarcaId,
 	buscarMarcasIds,
 	listarMarcas,
+//TIPOS PRODUCTO
+	buscarTipoProductoId,
+	buscarTiposProductoIds,
+	listarTiposProducto,
 //PROVEEDORES
 	buscarProveedorId,
 	buscarProveedoresIds,
