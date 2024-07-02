@@ -36,6 +36,7 @@ router.post('/', async function(req, res, next) {
   .catch((error) =>{ console.log(error); res.json({status:'error', error}); });
 })
 
+/* GET LISTADO PRODUCTOS */
 router.get('/listar', function(req, res, next){
   Producto.findAll({
     attributes: ["id", "producto"],
@@ -49,13 +50,12 @@ router.get('/listar', function(req, res, next){
   })
 });
 
-/* GET LISTADO PRODUCTOS */
+/* GET BUSQUEDA PRODUCTOS */
 router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda} = req.query;
   Producto.count({
     where:{
       producto: {[Op.iLike]: busqueda + '%' 
-
       }}
   })
   .then((total)=>{
@@ -67,6 +67,7 @@ router.get("/buscar", function(req, res, next){
       limit
     })
     .then((productos)=>{
+      console.log(productos)
       res.json({
         status:'ok',
         productos,
