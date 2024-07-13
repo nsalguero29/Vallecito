@@ -108,6 +108,9 @@ Venta.hasMany(Arreglo, {
   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
   foreignKey: 'ventaId', sourceKey: 'id', 
 });
+Arreglo.belongsTo(Venta, {
+  through: Arreglo, foreignKey: 'ventaId', as: 'venta'
+})
 
 //MUCHAS VENTAS <-> MUCHOS PRODUCTOS
 Venta.belongsToMany(Producto, {

@@ -3,8 +3,9 @@ var router = express.Router();
 const { Op } = require("sequelize");
 var funciones = require('../funciones');
 
-var {Arreglo, Bicicleta, Cliente, Producto, Arreglo} = require('../../db/main');
+var {Arreglo, Bicicleta, Cliente, Producto, Arreglo, Venta} = require('../../db/main');
 
+var { attributesCliente, attributesArreglo, attributesBicicleta } = require('../attributes.json');
 
 /* ARREGLOS */
 /* POST NUEVO ARREGLO */
@@ -46,6 +47,43 @@ router.get("/listar", function(req, res, next){
   .catch((error) => { 
     console.log(error); 
     res.json({status:'error', error})
+  })
+});
+
+/* GET BUSCAR ARREGLOS */
+router.get("/buscar", function(req, res, next){
+  const { limit, offset, busqueda } = req.query;
+  Arreglo.count({})
+  .then((count) => {
+    Arreglo.findAll({
+      attributes: attributesArreglo,
+      include:[{
+        model: Bicicleta,
+        attributes: attributesBicicleta,
+        as: 'bicicleta',
+        include: {
+          model: Cliente,
+          attributes: attributesCliente,
+          as: 'cliente'
+        }
+      },{
+        model: Venta,
+        as: 'venta'
+      }],
+      offset,
+      limit
+    })
+    .then((arreglos)=>{
+      res.json({
+        status:'ok',
+        arreglos,
+        total: count
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.json({status:'error', error})
+    })
   })
 });
 
