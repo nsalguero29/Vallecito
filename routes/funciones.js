@@ -465,7 +465,6 @@ const listarFullCompras = function (tiposPagoFiltrados) {
 
 //#endregion
 
-
 module.exports = {
 //CLIENTES
 	buscarClienteDocumento,

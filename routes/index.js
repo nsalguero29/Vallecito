@@ -10,6 +10,8 @@ var productosRouter = require('./productos');
 var proveedoresRouter = require('./proveedores');
 var tiposProductos = require('./tiposProductos');
 var ventasRouter = require('./ventas');
+var usuariosRouter = require('./usuarios');
+var adminRouter = require('./admin');
 
 
 /* GET home page. */
@@ -26,5 +28,7 @@ router.use('/productos', productosRouter);
 router.use('/proveedores', proveedoresRouter);
 router.use('/tiposProductos', tiposProductos);
 router.use('/ventas', ventasRouter);
+router.use('/usuarios', usuariosRouter);
+router.use('/admin', adminRouter);
 
 module.exports = router;
