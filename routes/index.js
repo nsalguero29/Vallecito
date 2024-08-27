@@ -20,6 +20,7 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+router.use('/usuarios', usuariosRouter);
 router.use('/arreglos', arreglosRouter);
 router.use('/bicicletas', bicicletasRouter);
 router.use('/clientes', clientesRouter);
@@ -30,7 +31,6 @@ router.use('/productos', productosRouter);
 router.use('/proveedores', proveedoresRouter);
 router.use('/tiposProductos', tiposProductos);
 router.use('/ventas', ventasRouter);
-router.use('/usuarios', usuariosRouter);
 router.use('/admin', adminRouter);
 
 module.exports = router;
