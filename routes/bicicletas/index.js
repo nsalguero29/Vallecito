@@ -1,10 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var funciones = require('../funciones');
+const { Op } = require("sequelize");
 
-var { Cliente, Bicicleta, Arreglo } = require('../../db/main');
+var { Cliente, Bicicleta, Arreglo, Marca, Modelo } = require('../../db/main');
 
-var { attributesCliente, attributesBicicleta } = require('../attributes.json');
+var {attributesMarca, attributesModelo,
+   attributesCliente, attributesBicicleta } = require('../attributes.json');
 
 /* POST NUEVO BICICLETA */
 router.post('/', function(req, res, next) {
@@ -27,17 +29,28 @@ router.post('/', function(req, res, next) {
 /* GET LISTADO BICICLETA */
 router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
-  Bicicleta.count({})
+  Bicicleta.count({
+    where:{cuadro: {[Op.iLike]: busqueda + '%' }},
+  })
   .then((count) => {
     Bicicleta.findAll({
       attributes: attributesBicicleta,
       include:[{
+        model: Marca,
+        attributes: attributesMarca,
+        as:'marca'
+      },{
+        model: Modelo,
+        attributes: attributesModelo,
+        as:'modelo'
+      },{
         model: Cliente,
         attributes: attributesCliente
       },{
         model: Arreglo,
         as: 'arreglos'
       }],
+      where:{cuadro: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })

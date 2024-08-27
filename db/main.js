@@ -13,6 +13,7 @@ var Bicicleta = require('./modelos/Bicicleta')(sequelize);
 var Cliente = require('./modelos/Cliente')(sequelize);
 var Compra = require('./modelos/Compra')(sequelize);
 var DetalleCompra = require('./modelos/DetalleCompra')(sequelize);
+var Modelo = require('./modelos/Modelo')(sequelize);
 var Marca = require('./modelos/Marca')(sequelize);
 var Producto = require('./modelos/Producto')(sequelize);
 var ProductoArreglo = require('./modelos/ProductoArreglo')(sequelize);
@@ -34,7 +35,6 @@ Arreglo.belongsToMany(Producto, {
   through: ProductoArreglo, foreignKey: 'arregloId', as:'productos'
 });
 
-//1 PROD <-> 1 MARCA
 Producto.belongsTo(Marca, {
   targetKey: 'id', foreignKey: 'marcaId', 
   as:'marca'
@@ -127,6 +127,24 @@ Producto.belongsToMany(TiposProducto, {
   through: 'productoTipos', foreignKey: 'productoTiposId', as: 'tiposProducto'
  });
 
+Bicicleta.belongsTo(Marca, {
+  targetKey: 'id', foreignKey: 'marcaId', 
+  as:'marca'
+});
+Marca.hasMany(Bicicleta, {
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'marcaId', as:'bicicletas'
+});
+
+Bicicleta.belongsTo(Modelo, {
+  targetKey: 'id', foreignKey: 'modeloId', 
+  as:'modelo'
+});
+Modelo.hasMany(Bicicleta, {
+  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+  foreignKey: 'modeloId', as:'bicicletas'
+});
+
 
 function iniciarDB(tipo = 'sync'){
   return new Promise((resolve, reject) => {
@@ -150,6 +168,7 @@ module.exports = {
   Cliente,
   Compra,
   DetalleCompra,
+  Modelo,
   Marca,
   Producto,
   ProductoArreglo,

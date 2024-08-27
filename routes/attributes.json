@@ -16,14 +16,19 @@
         "instagram"
     ],
     "attributesBicicleta" : [
-        "modelo",
         "rodado",
+        "color",
+        "cuadro",
         "observacion"
     ],
     "attributesMarca" : [
         "id",
         "marca"
-    ],    
+    ], 
+    "attributesModelo" : [
+        "id",
+        "modelo"
+    ],   
     "attributesProducto" : [
         "uuid",
         "codigoProveedor",

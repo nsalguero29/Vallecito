@@ -1,19 +1,19 @@
 var express = require('express');
 var router = express.Router();
 const { Op } = require("sequelize");
-var { Cliente, Bicicleta, Arreglo, Venta } = require('../../db/main');
-var funciones = require('../funciones');
+var { Modelo } = require('../../db/main');
 
-var { attributesCliente, attributesBicicleta } = require('../attributes.json');
+var { attributesModelo } = require('../attributes.json');
 
-/* POST NUEVO CLIENTE */
+/* Modelo */
+/* POST NUEVA Modelo */
 router.post('/', function(req, res, next) {
-  const attributesCliente = req.body;
-  Cliente.create(attributesCliente)
-  .then((cliente)=>{
+  const attributesModelo = req.body;
+  Modelo.create(attributesModelo)
+  .then((modelo)=>{
     res.json({
       status:'ok',
-      cliente
+      modelo
     });
   })
   .catch((error) => {
@@ -23,11 +23,11 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/listar', function(req, res, next){
-  Cliente.findAll({
-    attributes: ["id", "documento", "apellidos", "nombres"],    
+  Modelo.findAll({
+    attributes: attributesModelo,    
   })
-  .then((clientes)=>{
-    res.json({status:'ok', clientes});
+  .then((modelos)=>{
+    res.json({status:'ok', modelos});
   })
   .catch((error) => {
     console.log(error);
@@ -35,35 +35,22 @@ router.get('/listar', function(req, res, next){
   })
 });
 
-/* GET LISTADO CLIENTES */
 router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
-  Cliente.count({
-    where:{documento: {[Op.iLike]: busqueda + '%' }},
+  Modelo.count({
+    where:{modelo: {[Op.iLike]: busqueda + '%' }},
   })
   .then((count)=>{
-    Cliente.findAll({
-      attributes: attributesCliente,
-      include:[{
-        attributes: attributesBicicleta,
-        model: Bicicleta,
-        include: {
-          model: Arreglo,
-          as: 'arreglos'
-        },
-        as: 'bicicletas'
-      },{
-        model: Venta,
-        as: 'ventas'
-      }],
-      where:{documento: {[Op.iLike]: busqueda + '%' }},
+    Modelo.findAll({
+      attributes: attributesModelo,
+      where:{modelo: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })
-    .then((clientes)=>{
+    .then((modelos)=>{
       res.json({
         status:'ok',
-        clientes,
+        modelos,
         total: count
       });
     })
@@ -78,18 +65,18 @@ router.get("/buscar", function(req, res, next){
   })
 });
 
-/* ACTUALIZAR UN CLIENTE */
+/* ACTUALIZAR UNA Modelo */
 router.put('/actualizar', function(req, res, next) {
   const {id} = req.query;
-  const attributesCliente = req.body;
-  Cliente.update(
-    attributesCliente,
+  const attributesModelo = req.body;
+  Modelo.update(
+    attributesModelo,
     { where: {id} }
   )
-  .then((cliente)=>{
+  .then((modelo)=>{
     res.json({
       status:'ok',
-      cliente
+      modelo
     });
   })
   .catch((error) => {
@@ -98,10 +85,10 @@ router.put('/actualizar', function(req, res, next) {
   })
 });
 
-/* ELIMINA UNA CLIENTE */
+/* ELIMINA UNA Modelo */
 router.delete('/eliminar', function(req, res, next) {
   const {id} = req.query;
-  Cliente.destroy({ where: {id} })
+  Modelo.destroy({ where: {id} })
   .then(()=>{
     res.json({
       status:'ok'
