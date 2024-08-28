@@ -79,7 +79,7 @@ router.get("/buscar", function(req, res, next){
 });
 
 /* ACTUALIZAR UN PRODUCTO */
-router.put('/actualizar', function(req, res, next) {
+router.put('/', function(req, res, next) {
   const {id} = req.query;
   const attributesProducto = req.body;
   const {marcaId, proveedorId, tiposProductoIds} = attributesProducto;
