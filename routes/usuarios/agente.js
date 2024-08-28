@@ -31,7 +31,7 @@ router.post("/login", function(req, res, next){
 
             res.json({
               status:'ok',
-              user:datos,
+              datos,
               token
             })
           })
