@@ -11,16 +11,16 @@ var {attributesProducto} = require('../attributes.json');
 /* POST NUEVO PRODUCTO */
 router.post('/', async function(req, res, next) {
   const attributesProducto = req.body;
-  const {marcaId, proveedorId, tiposProductoIds} = attributesProducto;
+  const {marcaId, proveedorId, tiposProductoId} = attributesProducto;
   funciones.buscarProveedorId(proveedorId)
   .then(()=>{
     funciones.buscarMarcaId(marcaId)
     .then(()=>{
-      funciones.buscarTiposProductoIds(tiposProductoIds)
+      funciones.buscarTiposProductoIds(tiposProductoId)
       .then(async ()=>{      
         try {
           const producto = await Producto.create(attributesProducto);
-          await producto.setTiposProducto(tiposProductoIds);          
+          await producto.setTiposProducto(tiposProductoId);          
           producto.save();
           funciones.buscarFullProductoId(producto.id)
           .then((producto)=>{res.json({status:'ok', producto});})
@@ -67,7 +67,6 @@ router.get("/buscar", function(req, res, next){
       limit
     })
     .then((productos)=>{
-      console.log(productos)
       res.json({
         status:'ok',
         productos,

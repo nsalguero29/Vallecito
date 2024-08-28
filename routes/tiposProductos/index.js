@@ -22,7 +22,7 @@ router.post('/', function(req, res, next) {
 
 router.get('/listar', function(req, res, next){
   TiposProducto.findAll({
-    attributes: ["id", "tipo"],    
+    attributes: ["id", "tipoProducto"],    
   })
   .then((tiposProducto)=>{
     res.json({status:'ok', tiposProducto});
