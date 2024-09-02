@@ -19,8 +19,12 @@ router.post('/', async function(req, res, next) {
       funciones.buscarTiposProductoIds(tiposProductoId)
       .then(async ()=>{      
         try {
-          const producto = await Producto.create(attributesProducto);
-          await producto.setTiposProducto(tiposProductoId);          
+          const producto = await Producto.build(attributesProducto);
+          console.log("llego");    
+          await producto.save();
+          console.log("PRODUCTO: ");
+          console.log(producto);    
+          await producto.setTiposProducto(tiposProductoId);
           producto.save();
           funciones.buscarFullProductoId(producto.id)
           .then((producto)=>{res.json({status:'ok', producto});})
