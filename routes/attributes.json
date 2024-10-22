@@ -1,11 +1,13 @@
 {
     "attributesArreglo" : [
+        "id",
         "estado",
         "trabajo",
         "valorArreglo",
         "observacion"
     ],
     "attributesCliente": [
+        "id",
         "documento",
         "apellidos",
         "nombres",
@@ -16,6 +18,7 @@
         "instagram"
     ],
     "attributesBicicleta" : [
+        "id",
         "rodado",
         "color",
         "cuadro",
@@ -30,6 +33,7 @@
         "modelo"
     ],   
     "attributesProducto" : [
+        "id",
         "uuid",
         "codigoProveedor",
         "producto",
@@ -38,6 +42,7 @@
         "observacion"
     ],    
     "attributesProveedor" : [
+        "id",
         "proveedor",
         "nombreContacto",
         "direccion",
@@ -45,6 +50,7 @@
         "email"
     ],    
     "attributesVenta" : [
+        "id",
         "numFactura",
         "facturada",
         "tipoPago",
@@ -52,6 +58,7 @@
         "observacion"
     ],
     "attributesCompra" : [
+        "id",
         "numFactura",
         "tipoPago",
         "valor",
