@@ -59,8 +59,10 @@ router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda} = req.query;
   Producto.count({
     where:{
-      producto: {[Op.iLike]: busqueda + '%' 
-      }}
+      [Op.or]:{        
+        producto: {[Op.iLike]: busqueda + '%'}},
+        codigoProveedor: {[Op.iLike]: busqueda + '%'}
+      }
   })
   .then((total)=>{
     Producto.findAll({
