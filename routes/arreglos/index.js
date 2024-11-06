@@ -20,6 +20,7 @@ router.post('/nuevo', async function(req, res, next) {
         if(repuestosLista.length === repuestos.length){
           const arreglo = await Arreglo.create({...attributesArreglo, bicicletaId});
           await arreglo.addProductos(repuestos);
+          arreglo.save();
           funciones.buscarFullArregloId(arreglo.id)
           .then((arreglo)=>{res.json({status:'ok', arreglo});})
           .catch((error) =>{ console.log(error); res.json({status:'error', error}); });   
