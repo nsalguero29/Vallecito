@@ -11,20 +11,17 @@ var {attributesProducto} = require('../attributes.json');
 /* POST NUEVO PRODUCTO */
 router.post('/', async function(req, res, next) {
   const attributesProducto = req.body;
-  const {marcaId, proveedorId, tiposProductoId} = attributesProducto;
+  const {marcaId, proveedorId, tiposProductoIds} = attributesProducto;
   funciones.buscarProveedorId(proveedorId)
   .then(()=>{
     funciones.buscarMarcaId(marcaId)
     .then(()=>{
-      funciones.buscarTiposProductoIds(tiposProductoId)
+      funciones.buscarTiposProductoIds(tiposProductoIds)
       .then(async ()=>{      
         try {
           const producto = await Producto.build(attributesProducto);
-          console.log("llego");    
           await producto.save();
-          console.log("PRODUCTO: ");
-          console.log(producto);    
-          await producto.setTiposProducto(tiposProductoId);
+          await producto.setTiposProducto(tiposProductoIds);
           producto.save();
           funciones.buscarFullProductoId(producto.id)
           .then((producto)=>{res.json({status:'ok', producto});})
@@ -59,16 +56,21 @@ router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda} = req.query;
   Producto.count({
     where:{
-      [Op.or]:{        
-        producto: {[Op.iLike]: busqueda + '%'}},
-        codigoProveedor: {[Op.iLike]: busqueda + '%'}
-      }
+      [Op.or]:[
+        {producto: {[Op.iLike]: busqueda + '%'}},
+        {codigoProveedor: {[Op.iLike]: busqueda + '%'}}
+      ]}
   })
   .then((total)=>{
     Producto.findAll({
       attributes: attributesProducto,
       include: {all: true},
-      where:{producto: {[Op.iLike]: busqueda + '%' }},
+      where:{
+        [Op.or]:[
+          {producto: {[Op.iLike]: busqueda + '%'}},
+          {codigoProveedor: {[Op.iLike]: busqueda + '%'}}
+        ]},
+      order: [['producto']],
       offset,
       limit
     })
@@ -86,17 +88,18 @@ router.get("/buscar", function(req, res, next){
 
 /* ACTUALIZAR UN PRODUCTO */
 router.put('/', function(req, res, next) {
-  const {id} = req.query;
+  //const {id} = req.query;
   const attributesProducto = req.body;
-  const {marcaId, proveedorId, tiposProductoIds} = attributesProducto;
+  const {id, marcaId, proveedorId, tiposProductoIds} = attributesProducto;
   funciones.buscarProductoId(id)
   .then((producto)=>{
+    console.log("entro");
     funciones.buscarProveedorId(proveedorId)
     .then(()=>{      
-        funciones.buscarMarcaId(marcaId)
-        .then(()=>{ 
-          funciones.buscarTiposProductoIds(tiposProductoIds)
-          .then(async ()=>{          
+      funciones.buscarMarcaId(marcaId)
+      .then(()=>{ 
+        funciones.buscarTiposProductoIds(tiposProductoIds)
+        .then(async ()=>{          
               try {
                 await producto.set(attributesProducto);
                 await producto.setTiposProducto(tiposProductoIds);

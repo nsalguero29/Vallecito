@@ -159,7 +159,7 @@ const buscarFullProductoId = function (productoId) {
 				model : TiposProducto,
 				as : 'tiposProducto'
 			}],
-			where:{id : productoId}
+			where:{id : productoId}			
 		  })
 		  .then((producto)=>{ resolve(producto); })
 		  .catch((error) =>{ console.log(error); reject("Producto no encontrado"); });
