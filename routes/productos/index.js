@@ -57,6 +57,7 @@ router.get("/buscar", function(req, res, next){
   Producto.count({
     where:{
       [Op.or]:[
+        {codigo: {[Op.iLike]: busqueda + '%'}},
         {producto: {[Op.iLike]: busqueda + '%'}},
         {codigoProveedor: {[Op.iLike]: busqueda + '%'}}
       ]}
@@ -67,6 +68,7 @@ router.get("/buscar", function(req, res, next){
       include: {all: true},
       where:{
         [Op.or]:[
+          {codigo: {[Op.iLike]: busqueda + '%'}},
           {producto: {[Op.iLike]: busqueda + '%'}},
           {codigoProveedor: {[Op.iLike]: busqueda + '%'}}
         ]},

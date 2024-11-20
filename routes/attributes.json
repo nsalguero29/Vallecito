@@ -34,7 +34,7 @@
     ],   
     "attributesProducto" : [
         "id",
-        "uuid",
+        "codigo",
         "codigoProveedor",
         "producto",
         "stock",
