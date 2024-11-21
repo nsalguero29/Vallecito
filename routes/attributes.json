@@ -52,10 +52,11 @@
     "attributesVenta" : [
         "id",
         "numFactura",
-        "facturada",
+        "fechaVenta",
         "tipoPago",
+        "observacion",
         "valorFinal",
-        "observacion"
+        "facturada"
     ],
     "attributesCompra" : [
         "id",

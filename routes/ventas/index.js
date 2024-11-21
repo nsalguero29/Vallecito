@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var funciones = require('../funciones');
 var {Venta} = require('../../db/main');
+const { Op } = require("sequelize");
+var {attributesVenta} = require('../attributes.json');
 
 /* VENTAS */
 /* POST NUEVO VENTAS */
@@ -25,22 +27,13 @@ router.post('/', async function(req, res, next) {
             }
             funciones.buscarFullVentaId(venta.id)
             .then((venta)=>{ res.json({ status:'ok', venta }); })
-            .catch((error) => { console.log(error); res.json({status:'error', error}) });
           }else{
             res.json({status:'error', error: "Algun Producto no encontrado"});
           }
         })
-        .catch((error) => {
-          console.log(error);
-          res.json({status:'error', error})
-        })
       }else{
         res.json({status:'error', error: "Algun Arreglo no encontrado"});
       }
-    })
-    .catch((error) => {
-      console.log(error);
-      res.json({status:'error', error})
     })
   })
   .catch((error) => {
@@ -49,11 +42,35 @@ router.post('/', async function(req, res, next) {
   })
 })
 
-/* GET LISTADO VENTAS */
-router.get("/listar", function(req, res, next){
-  const {tiposPagoFiltrados, facturadas} = req.body;
-  funciones.listarFullVentas(tiposPagoFiltrados, facturadas)
-  .then((ventas)=>{ res.json({ status:'ok', ventas }); })
+/* GET BUSQUEDA VENTAS */
+router.get("/buscar", function(req, res, next){
+  const { limit, offset, busqueda} = req.query;
+  Venta.count({
+    where:{
+      [Op.or]:[
+        {numFactura: {[Op.iLike]: busqueda + '%'}}
+      ]}
+  })
+  .then((total)=>{
+    Venta.findAll({
+      attributes: attributesVenta,
+      include: {all: true},
+      where:{
+        [Op.or]:[
+          {numFactura: {[Op.iLike]: busqueda + '%'}}
+        ]},
+      order: [['numFactura']],
+      offset,
+      limit
+    })
+    .then((ventas)=>{
+      res.json({
+        status:'ok',
+        ventas,
+        total
+      });
+    })
+  })
   .catch((error) => { console.log(error); res.json({status:'error', error}) });
 });
 
@@ -88,17 +105,14 @@ router.put('/actualizar', async function(req, res, next) {
                 console.log(error); res.json({status:'error', error});
               }
             })
-            .catch((error) => { console.log(error); res.json({status:'error', error}) });
           }else{
             res.json({status:'error', error: "Producto no encontrado"});
           }
         })
-        .catch((error) => {console.log(error);res.json({status:'error', error});});
       }else{
         res.json({status:'error', error: "Arreglo no encontrado"});
       }
     })
-    .catch((error) => {console.log(error);res.json({status:'error', error})});
   })
   .catch((error) => {console.log(error);res.json({status:'error', error})});
 });
