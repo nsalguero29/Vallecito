@@ -2,7 +2,6 @@ const { DataTypes } = require("sequelize"); // Import the built-in data types
 
 function definir(sequelize){
   const Cliente = sequelize.define('cliente', {
-    numCliente: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, allowNull: false },
     documento: { type: DataTypes.STRING, allowNull: false },
     apellidos: { type: DataTypes.STRING, allowNull: true },
     nombres: { type: DataTypes.STRING, allowNull: true },

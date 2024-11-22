@@ -19,7 +19,7 @@ var Producto = require('./modelos/Producto')(sequelize);
 var ProductoArreglo = require('./modelos/ProductoArreglo')(sequelize);
 var ProductoMarca = require('./modelos/ProductoMarca')(sequelize);
 var ProductoProveedor = require('./modelos/ProductoProveedor')(sequelize);
-var ProductoVenta = require('./modelos/ProductoVenta')(sequelize);
+var DetalleVenta = require('./modelos/DetalleVenta')(sequelize);
 var Proveedor = require('./modelos/Proveedor')(sequelize);
 var TiposProducto = require('./modelos/TiposProducto')(sequelize);
 var Usuario = require('./modelos/Usuario')(sequelize);
@@ -114,10 +114,10 @@ Arreglo.belongsTo(Venta, {
 
 //MUCHAS VENTAS <-> MUCHOS PRODUCTOS
 Venta.belongsToMany(Producto, {
-  through: ProductoVenta, foreignKey: 'productoId', as: 'productos'
+  through: DetalleVenta, foreignKey: 'productoId', as: 'productos'
 });
 Producto.belongsToMany(Venta, {
- through: ProductoVenta, foreignKey: 'ventaId', as: 'ventas'
+ through: DetalleVenta, foreignKey: 'ventaId', as: 'ventas'
 });
 
 TiposProducto.belongsToMany(Producto,{
@@ -174,7 +174,7 @@ module.exports = {
   ProductoArreglo,
   ProductoMarca,
   ProductoProveedor,
-  ProductoVenta,
+  DetalleVenta,
   Proveedor,
   TiposProducto,
   Usuario,
