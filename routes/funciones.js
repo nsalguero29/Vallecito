@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 var { Arreglo, Bicicleta, Cliente, Marca, Producto, Proveedor, Arreglo, Venta, Compra,
-	TiposProducto, DetalleCompra} = require('../db/main');
+	TiposProducto, DetalleCompra,
+	DetalleVenta} = require('../db/main');
 
 var { attributesCliente, attributesBicicleta, attributesCompra, attributesMarca, attributesProducto, attributesProveedor, attributesVenta, attributesArreglo } = require('./attributes.json');
 const estadosArreglosCompleto = ["creado", "esperando", "reparando", "finalizado", "anulado"];
@@ -353,19 +354,8 @@ const buscarFullVentaId = function (ventaId) {
 				model: Cliente
 			},
 			{
-			  model: Arreglo,
-			  include: [{ 
-				  model: Producto,
-					as: 'productos'
-				},
-				{ 
-				  model: Bicicleta,
-					as:'bicicleta'
-				}]
-			},
-			{
-			  model: Producto,
-				as: 'productos'
+			  model: DetalleVenta,
+				as: 'detallesVenta'
 			}],
 			where:{ 
 				id: ventaId

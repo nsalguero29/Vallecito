@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var funciones = require('../funciones');
-var {Venta} = require('../../db/main');
+var {Venta, DetalleVenta} = require('../../db/main');
 const { Op } = require("sequelize");
 var {attributesVenta} = require('../attributes.json');
 
@@ -9,30 +9,35 @@ var {attributesVenta} = require('../attributes.json');
 /* POST NUEVO VENTAS */
 router.post('/', async function(req, res, next) {
   const attributesVenta = req.body;
-  const {arreglos, productos, clienteId} = attributesVenta;
-  funciones.buscarClienteId(clienteId)
+  const {arreglos, detallesVenta, cliente} = attributesVenta;
+  funciones.buscarClienteId(cliente.id)
   .then(async ()=>{
-    funciones.buscarArreglosIds(arreglos)
-    .then(async (arreglosLista)=>{
-      if(arreglosLista.length === arreglos.length){  
-        funciones.buscarProductosIds(productos)
-        .then(async (productosLista)=>{ 
-          if(productosLista.length === productos.length){
-            const venta = await Venta.create({...attributesVenta,clienteId});
-            if(arreglosLista.length != 0){
-              await venta.setArreglos(arreglos);                
-            }
-            if(productosLista.length != 0){
-              await venta.setProductos(productos);
-            }
-            funciones.buscarFullVentaId(venta.id)
-            .then((venta)=>{ res.json({ status:'ok', venta }); })
-          }else{
-            res.json({status:'error', error: "Algun Producto no encontrado"});
-          }
-        })
+    console.log("encontro cliente"); 
+    let productosIds = [];
+    detallesVenta.forEach(detalle => {
+      productosIds.push(detalle.producto.id);
+    }); 
+    funciones.buscarProductosIds(productosIds)
+    .then(async (productosLista)=>{ 
+      console.log("ok productos");
+      console.log(productosLista);
+      console.log(detallesVenta);
+      if(productosLista.length === detallesVenta.length){
+        const venta = await Venta.create(attributesVenta);
+        if(productosLista.length != 0){
+          detallesVenta.forEach(async (detalle) => {
+            await DetalleVenta.create({
+              "ventaId": venta.id,
+              "productoId": detalle.producto.id,
+              "cantidad": detalle.cantidad,
+              "precio": detalle.precio
+            });
+          });
+        }
+        funciones.buscarFullVentaId(venta.id)
+        .then((venta)=>{ res.json({ status:'ok', venta }); })
       }else{
-        res.json({status:'error', error: "Algun Arreglo no encontrado"});
+        res.json({status:'error', error: "Algun Producto no encontrado"});
       }
     })
   })

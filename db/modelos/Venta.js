@@ -4,12 +4,12 @@ function definir(sequelize){
   const Ventas = sequelize.define('venta', {
     numFactura: { type: DataTypes.STRING, allowNull: true },
     fechaVenta: { type:  DataTypes.DATEONLY, allowNull: true },  
-    tipoPago: { type: DataTypes.ENUM, values:[
-      'efectivo', 
-      'transferencia', 
-      'debito',
-      'credito'      
-    ], allowNull: false },
+    tipoPago: { 
+      type: DataTypes.STRING, 
+      allowNull: false,
+      validate: { isIn: [['efectivo', 'transferencia', 'debito', 'credito', 'cheque']] },
+      defaultValue:'efectivo'
+    },
     observacion: { type: DataTypes.STRING, allowNull: true },
     valorFinal: { type: DataTypes.DOUBLE, allowNull: true },
     facturada: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
