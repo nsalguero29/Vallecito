@@ -12,7 +12,6 @@ router.post('/', async function(req, res, next) {
   const {arreglos, detallesVenta, cliente} = attributesVenta;
   funciones.buscarClienteId(cliente.id)
   .then(async ()=>{
-    console.log("encontro cliente"); 
     let productosIds = [];
     detallesVenta.forEach(detalle => {
       productosIds.push(detalle.producto.id);
@@ -21,21 +20,31 @@ router.post('/', async function(req, res, next) {
     .then(async (productosLista)=>{ 
       console.log("ok productos");
       console.log(productosLista);
+      console.log(attributesVenta);
       console.log(detallesVenta);
       if(productosLista.length === detallesVenta.length){
-        const venta = await Venta.create(attributesVenta);
+        const datosVenta = {
+          "numFactura": attributesVenta.numFactura,
+          "fechaVenta": attributesVenta.fechaVenta,
+          "tipoPago": attributesVenta.tipoPago,
+          "observacion": attributesVenta.observacion,
+          "valorFinal": attributesVenta.valorFinal,
+          "clienteId": cliente.id
+        };
+        const venta = await Venta.create(datosVenta);
+        //await venta.addCliente(cliente);
         if(productosLista.length != 0){
           detallesVenta.forEach(async (detalle) => {
-            await DetalleVenta.create({
-              "ventaId": venta.id,
-              "productoId": detalle.producto.id,
-              "cantidad": detalle.cantidad,
-              "precio": detalle.precio
-            });
+            const producto = productosLista.find((p) => p.id === detalle.producto.id);
+            await venta.addProducto(
+                    producto, 
+                    {through: { "cantidad": detalle.cantidad, "precio": detalle.precio} 
+                  });
           });
         }
         funciones.buscarFullVentaId(venta.id)
-        .then((venta)=>{ res.json({ status:'ok', venta }); })
+        .then((venta)=>{ console.log(venta);
+         res.json({ status:'ok', venta }); })
       }else{
         res.json({status:'error', error: "Algun Producto no encontrado"});
       }

@@ -96,11 +96,7 @@ Cliente.hasMany(Bicicleta,{
 Bicicleta.belongsTo(Cliente);
 
 //1 CLIENTE -> MUCHAS VENTAS
-Cliente.hasMany(Venta, {
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'clienteId', sourceKey: 'id',
-  as: 'ventas'
-});
+Cliente.hasMany(Venta);
 Venta.belongsTo(Cliente);
 
 //1 VENTA -> MUCHOS ARREGLOS
@@ -119,6 +115,11 @@ Venta.belongsToMany(Producto, {
 Producto.belongsToMany(Venta, {
  through: DetalleVenta, foreignKey: 'ventaId', as: 'ventas'
 });
+DetalleVenta.belongsTo(Venta);
+DetalleVenta.belongsTo(Producto);
+Venta.hasMany(DetalleVenta);
+Producto.hasMany(DetalleVenta);
+
 
 TiposProducto.belongsToMany(Producto,{
   through: 'productoTipos', foreignKey: 'productoId', as: 'productos'

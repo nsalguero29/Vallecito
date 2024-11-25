@@ -354,8 +354,8 @@ const buscarFullVentaId = function (ventaId) {
 				model: Cliente
 			},
 			{
-			  model: DetalleVenta,
-				as: 'detallesVenta'
+			  	model: Producto,
+				as: 'productos'
 			}],
 			where:{ 
 				id: ventaId
