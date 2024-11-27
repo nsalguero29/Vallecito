@@ -354,8 +354,12 @@ const buscarFullVentaId = function (ventaId) {
 				model: Cliente
 			},
 			{
-			  	model: Producto,
-				as: 'productos'
+			  	model: DetalleVenta,
+				as: 'detalles',
+				include: [{
+					model: Producto,
+					as: 'productoDetalle'
+				}]
 			}],
 			where:{ 
 				id: ventaId
@@ -375,23 +379,26 @@ const listarFullVentas = function (tiposPagoFiltrados, facturadas) {
 				model: Cliente
 			},
 			{
+				model: DetalleVenta,
+				as:'detalles',
+				include: [{
+					model: Producto,
+					as:'producto'
+				}]
+			},
+			{
 				attributes: attributesArreglo,
-			  model: Arreglo,
-			  include: [{ 
+			  	model: Arreglo,
+			  	include: [{ 
 					attributes: attributesProducto,
-				  model: Producto,
+				  	model: Producto,
 					as: 'productos'
 				},
 				{ 
 					attributes: attributesBicicleta,
-				  model: Bicicleta,
+				  	model: Bicicleta,
 					as:'bicicleta'
 				}]
-			},
-			{
-				attributes: attributesProducto,
-			  model: Producto,
-				as: 'productos'
 			}],
 			where:{
 				tipoPago: {[Op.or]: tiposPagoFiltrados? [tiposPagoFiltrados] : tiposPagoCompleto},

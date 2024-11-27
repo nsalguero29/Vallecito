@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var funciones = require('../funciones');
-var {Venta, DetalleVenta} = require('../../db/main');
+var {Venta, DetalleVenta, Producto, Cliente} = require('../../db/main');
 const { Op } = require("sequelize");
 var {attributesVenta} = require('../attributes.json');
 
@@ -34,12 +34,18 @@ router.post('/', async function(req, res, next) {
         const venta = await Venta.create(datosVenta);
         //await venta.addCliente(cliente);
         if(productosLista.length != 0){
-          detallesVenta.forEach(async (detalle) => {
+          await detallesVenta.forEach(async (detalle) => {
             const producto = productosLista.find((p) => p.id === detalle.producto.id);
-            await venta.addProducto(
-                    producto, 
-                    {through: { "cantidad": detalle.cantidad, "precio": detalle.precio} 
-                  });
+            await DetalleVenta.create({
+              "ventaId": venta.id, 
+              "productoId": producto.id,
+              "cantidad": detalle.cantidad, 
+              "precio": detalle.precio
+            })
+            // await venta.addDetalles(
+            //         producto, 
+            //         {through: { "cantidad": detalle.cantidad, "precio": detalle.precio} 
+            //       });
           });
         }
         funciones.buscarFullVentaId(venta.id)
@@ -68,7 +74,18 @@ router.get("/buscar", function(req, res, next){
   .then((total)=>{
     Venta.findAll({
       attributes: attributesVenta,
-      include: {all: true},
+      include: [{
+        model:Cliente,
+        as:'cliente'
+      },
+      {
+        model:DetalleVenta,
+        as:'detalles',
+        include: [{
+          model:Producto,
+          as:'producto'
+        }]
+      }],
       where:{
         [Op.or]:[
           {numFactura: {[Op.iLike]: busqueda + '%'}}

@@ -28,12 +28,12 @@ var Venta = require('./modelos/Venta')(sequelize);
 //RELACIONES
 
 //MUCHOS PROD <-> MUCHOS ARREGLOS
-Producto.belongsToMany(Arreglo, {
-   through: ProductoArreglo, foreignKey: 'productoId', as:'arreglos'
-});
-Arreglo.belongsToMany(Producto, {
-  through: ProductoArreglo, foreignKey: 'arregloId', as:'productos'
-});
+// Producto.belongsToMany(Arreglo, {
+//    through: ProductoArreglo, foreignKey: 'productoId', as:'arreglos'
+// });
+// Arreglo.belongsToMany(Producto, {
+//   through: ProductoArreglo, foreignKey: 'arregloId', as:'productos'
+// });
 
 Producto.belongsTo(Marca, {
   targetKey: 'id', foreignKey: 'marcaId', 
@@ -96,29 +96,29 @@ Cliente.hasMany(Bicicleta,{
 Bicicleta.belongsTo(Cliente);
 
 //1 CLIENTE -> MUCHAS VENTAS
-Cliente.hasMany(Venta);
+Cliente.hasMany(Venta, {as: 'ventas'});
 Venta.belongsTo(Cliente);
 
 //1 VENTA -> MUCHOS ARREGLOS
-Venta.hasMany(Arreglo, {
-  onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
-  foreignKey: 'ventaId', sourceKey: 'id', 
-});
-Arreglo.belongsTo(Venta, {
-  through: Arreglo, foreignKey: 'ventaId', as: 'venta'
-})
+// Venta.hasMany(Arreglo, {
+//   onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+//   foreignKey: 'ventaId', sourceKey: 'id', 
+// });
+// Arreglo.belongsTo(Venta, {
+//   through: Arreglo, foreignKey: 'ventaId', as: 'venta'
+// })
 
 //MUCHAS VENTAS <-> MUCHOS PRODUCTOS
-Venta.belongsToMany(Producto, {
-  through: DetalleVenta, foreignKey: 'productoId', as: 'productos'
-});
-Producto.belongsToMany(Venta, {
- through: DetalleVenta, foreignKey: 'ventaId', as: 'ventas'
-});
-DetalleVenta.belongsTo(Venta);
-DetalleVenta.belongsTo(Producto);
-Venta.hasMany(DetalleVenta);
-Producto.hasMany(DetalleVenta);
+Venta.belongsToMany(DetalleVenta, {through: DetalleVenta, as:'detalles'});
+//DetalleVenta.belongsTo(Venta, {through: DetalleVenta, as:'venta'});
+
+DetalleVenta.belongsTo(Producto, {through: DetalleVenta, as:'productoDetalle'});
+
+//Producto.belongsToMany(DetalleVenta, {through: DetalleVenta, as:'detalleProducto'});
+// DetalleVenta.belongsTo(Venta);
+// DetalleVenta.belongsTo(Producto);
+// Venta.hasMany(DetalleVenta);
+// Producto.hasMany(DetalleVenta);
 
 
 TiposProducto.belongsToMany(Producto,{
