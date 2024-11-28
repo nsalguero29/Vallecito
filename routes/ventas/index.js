@@ -18,10 +18,6 @@ router.post('/', async function(req, res, next) {
     }); 
     funciones.buscarProductosIds(productosIds)
     .then(async (productosLista)=>{ 
-      console.log("ok productos");
-      console.log(productosLista);
-      console.log(attributesVenta);
-      console.log(detallesVenta);
       if(productosLista.length === detallesVenta.length){
         const datosVenta = {
           "numFactura": attributesVenta.numFactura,
@@ -39,6 +35,9 @@ router.post('/', async function(req, res, next) {
             ventaId: venta.id
           }));
           await DetalleVenta.bulkCreate(detallesVentaConId);
+          detallesVenta.forEach(async (detalle) => {
+            await Producto.decrement({stock: detalle.cantidad}, {where: {id: detalle.producto.id}});
+          });
         }
         funciones.buscarFullVentaId(venta.id)
         .then((venta)=>{ console.log({venta});
