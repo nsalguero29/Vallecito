@@ -32,24 +32,16 @@ router.post('/', async function(req, res, next) {
           "clienteId": cliente.id
         };
         const venta = await Venta.create(datosVenta);
-        //await venta.addCliente(cliente);
         if(productosLista.length != 0){
-          await detallesVenta.forEach(async (detalle) => {
-            const producto = productosLista.find((p) => p.id === detalle.producto.id);
-            await DetalleVenta.create({
-              "ventaId": venta.id, 
-              "productoId": producto.id,
-              "cantidad": detalle.cantidad, 
-              "precio": detalle.precio
-            })
-            // await venta.addDetalles(
-            //         producto, 
-            //         {through: { "cantidad": detalle.cantidad, "precio": detalle.precio} 
-            //       });
-          });
+          const detallesVentaConId = detallesVenta.map(detalle => ({
+            ...detalle,
+            productoId: detalle.producto.id,
+            ventaId: venta.id
+          }));
+          await DetalleVenta.bulkCreate(detallesVentaConId);
         }
         funciones.buscarFullVentaId(venta.id)
-        .then((venta)=>{ console.log(venta);
+        .then((venta)=>{ console.log({venta});
          res.json({ status:'ok', venta }); })
       }else{
         res.json({status:'error', error: "Algun Producto no encontrado"});

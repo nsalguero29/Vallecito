@@ -358,7 +358,7 @@ const buscarFullVentaId = function (ventaId) {
 				as: 'detalles',
 				include: [{
 					model: Producto,
-					as: 'productoDetalle'
+					as: 'producto'
 				}]
 			}],
 			where:{ 

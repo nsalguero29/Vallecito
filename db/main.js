@@ -109,16 +109,11 @@ Venta.belongsTo(Cliente);
 // })
 
 //MUCHAS VENTAS <-> MUCHOS PRODUCTOS
-Venta.belongsToMany(DetalleVenta, {through: DetalleVenta, as:'detalles'});
-//DetalleVenta.belongsTo(Venta, {through: DetalleVenta, as:'venta'});
+Venta.hasMany(DetalleVenta, {foreignKey: 'ventaId', as:'detalles'});
+Producto.hasMany(DetalleVenta, {foreignKey:'productoId', as:'detalles'});
 
-DetalleVenta.belongsTo(Producto, {through: DetalleVenta, as:'productoDetalle'});
-
-//Producto.belongsToMany(DetalleVenta, {through: DetalleVenta, as:'detalleProducto'});
-// DetalleVenta.belongsTo(Venta);
-// DetalleVenta.belongsTo(Producto);
-// Venta.hasMany(DetalleVenta);
-// Producto.hasMany(DetalleVenta);
+DetalleVenta.belongsTo(Venta, {foreignKey:'ventaId', as:'venta'});
+DetalleVenta.belongsTo(Producto, {foreignKey:'productoId', as:'producto'});
 
 
 TiposProducto.belongsToMany(Producto,{
