@@ -5,7 +5,7 @@ var { Usuario } = require('../../db/main');
 var jwt = require('jsonwebtoken');
 
 const { SECRETJWT } = process.env;
-const EXP = (3 * 60 * 60) //expira en 3 horas
+const EXP = (10 * 60 * 60) //expira en 10 horas
 
 router.post("/login", function(req, res, next){
   const {user, pass} = req.body;
