@@ -40,7 +40,7 @@ router.post('/', async function(req, res, next) {
 /* GET LISTADO PRODUCTOS */
 router.get('/listar', function(req, res, next){
   Producto.findAll({
-    attributes: ["id", "producto"],
+    attributes: ["id", "codigo", "producto", "stock", "precioLista"],
   })
   .then((productos)=>{
     res.json({status:'ok', productos});
