@@ -34,40 +34,31 @@ router.get('/listar', function(req, res, next){
 });
 
 /* GET LISTADO MARCAS CON PRODUCTOS ASOCIADOS */
-/*router.get("/buscar", function(req, res, next){
+router.get("/buscar", function(req, res, next){
   const { limit, offset, busqueda } = req.query;
-  Marca.count({
-    where:{marca: {[Op.iLike]: busqueda + '%' }},
+  TiposProducto.count({
+    where:{tipoProducto: {[Op.iLike]: busqueda + '%' }},
   })
   .then((count)=>{
-    Marca.findAll({
-      attributes: attributesMarca,
-      include:{
-        model: Producto,
-        attributes: attributesProducto,
-        as:'productos'
-      },
-      where:{marca: {[Op.iLike]: busqueda + '%' }},
+    TiposProducto.findAll({
+      attributes: ["id", "tipoProducto"],
+      where:{tipoProducto: {[Op.iLike]: busqueda + '%' }},
       offset,
       limit
     })
-    .then((marcas)=>{
+    .then((tiposProducto)=>{
       res.json({
         status:'ok',
-        marcas: marcas,
+        tiposProducto,
         total: count
       });
-    })
-    .catch((error) => {
-      console.log(error);
-      res.json({status:'error', error})
     })
   })
   .catch((error) => {
     console.log(error);
     res.json({status:'error', error})
   })
-});*/
+});
 
 /* ACTUALIZAR UNA MARCA */
 /*router.put('/actualizar', function(req, res, next) {
