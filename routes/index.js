@@ -14,13 +14,23 @@ var ventasRouter = require('./ventas');
 var usuariosRouter = require('./usuarios');
 var adminRouter = require('./admin');
 
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+const { checkUser } = require('./middleware');
 
 router.use('/usuarios', usuariosRouter);
+
+/* GET home page. */
+router.use('/', function(req, res, next) {
+  const token = req.headers.authorization;
+  checkUser(token)
+  .then((resp) =>{
+    next();
+  })
+  .catch((error) =>{
+    console.error(error);
+    res.status(error.status).json({status: "error", error: error.msj})
+  })
+});
+
 router.use('/arreglos', arreglosRouter);
 router.use('/bicicletas', bicicletasRouter);
 router.use('/clientes', clientesRouter);
