@@ -61,24 +61,24 @@ router.get("/buscar", function(req, res, next){
 });
 
 /* ACTUALIZAR UNA MARCA */
-/*router.put('/actualizar', function(req, res, next) {
-  const {id} = req.query;
-  const attributesMarca = req.body;
-  Marca.update(
-    attributesMarca,
-    { where: {id} }
+router.put('/', function(req, res, next) {
+  //const {id} = req.query;
+  const attributesTipoProducto = req.body;
+  TiposProducto.update(
+    attributesTipoProducto,
+    { where: {id: attributesTipoProducto.id} }
   )
-  .then((marca)=>{
+  .then((tipo)=>{
     res.json({
       status:'ok',
-      marca
+      tipo
     });
   })
   .catch((error) => {
     console.log(error);
     res.json({status:'error', error})
   })
-});*/
+});
 
 /* ELIMINA UN TIPO PRODUCTOS*/
 router.delete('/eliminar', function(req, res, next) {

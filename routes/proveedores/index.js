@@ -73,12 +73,12 @@ router.get("/buscar", function(req, res, next){
 });
 
 /* ACTUALIZAR UN PROVEEDOR */
-router.put('/actualizar', function(req, res, next) {
-  const {id} = req.query;
+router.put('/', function(req, res, next) {
+  //const {id} = req.query;
   const attributesProveedor = req.body;
   Proveedor.update(
     attributesProveedor,
-    { where: {id} }
+    { where: {id: attributesProveedor.id} }
   )
   .then((proveedor)=>{
     res.json({
