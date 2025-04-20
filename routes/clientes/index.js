@@ -79,12 +79,12 @@ router.get("/buscar", function(req, res, next){
 });
 
 /* ACTUALIZAR UN CLIENTE */
-router.put('/actualizar', function(req, res, next) {
-  const {id} = req.query;
+router.put('/', function(req, res, next) {
+  //const {id} = req.query;
   const attributesCliente = req.body;
   Cliente.update(
     attributesCliente,
-    { where: {id} }
+    { where: {id: attributesCliente.id} }
   )
   .then((cliente)=>{
     res.json({

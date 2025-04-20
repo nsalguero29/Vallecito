@@ -72,12 +72,12 @@ router.get("/buscar", function(req, res, next){
 });
 
 /* ACTUALIZAR UNA MARCA */
-router.put('/actualizar', function(req, res, next) {
-  const {id} = req.query;
+router.put('/', function(req, res, next) {
+  //const {id} = req.query;
   const attributesMarca = req.body;
   Marca.update(
     attributesMarca,
-    { where: {id} }
+    { where: {id: attributesMarca.id} }
   )
   .then((marca)=>{
     res.json({
